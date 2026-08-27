@@ -499,25 +499,21 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
 </div>
 <div id="phoneMenu"></div>
 
-<!-- ============ 记事本弹窗（多记事） ============ -->
+<!-- ============ 记事本弹窗（多笔记，网格，一行2个） ============ -->
 <div class="modal-mask" id="notesModal" onclick="if(event.target===notesModal)closeNotes()">
   <div class="modal-card" style="max-width:760px;width:92vw">
     <div class="modal-title">📝 记事本
       <div style="display:flex;gap:8px">
-        <button class="badge-btn" onclick="newNote()">➕ 新建</button>
+        <button class="badge-btn" onclick="newNote()">➕ 新增笔记</button>
         <button class="badge-btn" onclick="closeNotes()">关闭</button>
         <button class="client-icon-btn" onclick="closeNotes()">✕</button>
       </div>
     </div>
-    <div class="login-hint" style="text-align:left;margin:0 0 10px">本账号本地记录，自动保存，按账号隔离（仅本设备可见）。可创建多条记事，标题自动取首行。</div>
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
-      <select id="notesList" class="search-inp" style="flex:1;min-width:160px" onchange="switchNote(this.value)"></select>
-      <button class="badge-btn" onclick="renameNote()">✏️ 重命名</button>
-      <button class="badge-btn" onclick="deleteNote()">🗑 删除</button>
+    <div class="login-hint" style="text-align:left;margin:0 0 10px">本账号本地记录，自动保存，按账号隔离（仅本设备可见）。点上方笔记切换编辑，点 ✕ 删除；标题自动取首行。</div>
+    <div id="notesGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"></div>
+    <textarea id="notesArea" rows="14" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box" placeholder="在这里记录一些信息…（自动保存，每条笔记独立）" oninput="scheduleNotesSave()"></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
       <span id="notesStatus" style="font-size:12px;color:var(--text-light)"></span>
-    </div>
-    <textarea id="notesArea" rows="14" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box" placeholder="在这里记录一些信息…（自动保存，每条记事独立）" oninput="scheduleNotesSave()"></textarea>
-    <div style="display:flex;justify-content:flex-end;margin-top:10px">
       <button class="login-btn" style="min-width:90px" onclick="saveNotes(true)">保存</button>
     </div>
   </div>
@@ -554,7 +550,7 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 const KEY="wb_client_v1", META_KEY="wb_client_meta";
 const SB_BASE="https://ekecxzijszqemqykpmkc.supabase.co/rest/v1";
 const SB_KEY="sb_publishable_aLbA-luAVpq6JvUCN7v_JA_IOsxHg7X";
-const SEED_TS="20260827125834";
+const SEED_TS="20260827134541";
 let DATA=loadData();
 let FILTER="全部", NEED="", BID_TYPE="", LEVEL="", CUR_ID="";
 let OWNER_FILTER="";                 // 管理员人员筛选：""=全部人员，否则按负责人(owner)过滤
@@ -1000,28 +996,34 @@ function loadNotes(){
   NOTES_KEY=notesKey();
   let raw='';
   try{ raw=localStorage.getItem(NOTES_KEY)||''; }catch(e){}
-  if(raw && raw.trim() && (raw.trim()[0]!=='{' || raw.trim()[0]!=='[')){
-    // 兼容旧版单条字符串：转成第一条记事
-    return {notes:[{id:String(Date.now()),title:'默认记事',content:raw,updated_at:new Date().toISOString()}],currentId:''};
-  }
+  if(!raw) return {notes:[{id:String(Date.now()),title:'默认记事',content:'',updated_at:new Date().toISOString()}],currentId:''};
+  // 优先按新版 JSON 结构解析
   try{
-    const obj=JSON.parse(raw||'{}');
-    if(obj&&Array.isArray(obj.notes)&&obj.notes.length) return {notes:obj.notes,currentId:obj.currentId||obj.notes[0].id};
+    const obj=JSON.parse(raw);
+    if(obj&&Array.isArray(obj.notes)&&obj.notes.length){ return {notes:obj.notes,currentId:obj.currentId||obj.notes[0].id}; }
   }catch(e){}
-  return {notes:[{id:String(Date.now()),title:'默认记事',content:'',updated_at:new Date().toISOString()}],currentId:''};
+  // 兼容旧版单条字符串：转成第一条记事
+  return {notes:[{id:String(Date.now()),title:'默认记事',content:raw,updated_at:new Date().toISOString()}],currentId:''};
 }
 function persistNotes(nb){
   if(!NOTES_KEY)return;
   try{ localStorage.setItem(NOTES_KEY,JSON.stringify(nb)); }catch(e){}
 }
 function currentNote(nb){ return (nb.notes||[]).find(n=>n.id===nb.currentId)||nb.notes[0]; }
-function renderNotesList(nb){
-  const sel=document.getElementById('notesList'); if(!sel)return;
-  sel.innerHTML='';
+function renderNotesGrid(nb){
+  const grid=document.getElementById('notesGrid'); if(!grid)return;
+  grid.innerHTML='';
   (nb.notes||[]).forEach(n=>{
-    const opt=document.createElement('option'); opt.value=n.id; opt.textContent=n.title||notesTitle(n);
-    if(n.id===nb.currentId) opt.selected=true;
-    sel.appendChild(opt);
+    const el=document.createElement('div');
+    el.style.cssText='position:relative;padding:10px 30px 10px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer;background:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;';
+    if(n.id===nb.currentId) el.style.cssText+='border-color:var(--primary);background:#f0f5ff;font-weight:600;';
+    el.onclick=(e)=>{ if(e.target.closest('.note-del'))return; switchNote(n.id); };
+    const title=document.createElement('div'); title.textContent=n.title||notesTitle(n);
+    const del=document.createElement('span'); del.className='note-del'; del.textContent='✕'; del.title='删除该笔记';
+    del.style.cssText='position:absolute;top:6px;right:8px;color:#c0c0c0;font-size:12px;cursor:pointer;';
+    del.onclick=(e)=>{ e.stopPropagation(); deleteNote(n.id); };
+    el.appendChild(title); el.appendChild(del);
+    grid.appendChild(el);
   });
 }
 let NOTES_OBJ=null; // 当前打开的记事本对象
@@ -1034,7 +1036,7 @@ function openNotes(){
   const cur=currentNote(NOTES_OBJ);
   if(ta) ta.value=cur?cur.content:'';
   document.getElementById('notesStatus').textContent='';
-  renderNotesList(NOTES_OBJ);
+  renderNotesGrid(NOTES_OBJ);
   document.getElementById('notesModal').classList.add('show');
   setTimeout(()=>ta&&ta.focus(),50);
 }
@@ -1045,33 +1047,28 @@ function switchNote(id){
   NOTES_OBJ.currentId=id;
   const cur=currentNote(NOTES_OBJ);
   const ta=document.getElementById('notesArea'); if(ta)ta.value=cur?cur.content:'';
+  renderNotesGrid(NOTES_OBJ);
   document.getElementById('notesStatus').textContent='';
 }
 function newNote(){
   if(!NOTES_OBJ)return;
   flushNotes();
   const id=String(Date.now());
-  const n={id,title:'新记事',content:'',updated_at:new Date().toISOString()};
+  const n={id,title:'新笔记',content:'',updated_at:new Date().toISOString()};
   NOTES_OBJ.notes.push(n); NOTES_OBJ.currentId=id;
   const ta=document.getElementById('notesArea'); if(ta)ta.value='';
-  renderNotesList(NOTES_OBJ); persistNotes(NOTES_OBJ);
+  renderNotesGrid(NOTES_OBJ); persistNotes(NOTES_OBJ);
   setTimeout(()=>ta&&ta.focus(),50);
 }
-function deleteNote(){
-  if(!NOTES_OBJ || NOTES_OBJ.notes.length<=1){ alert('至少保留一条记事'); return; }
-  const cur=currentNote(NOTES_OBJ); if(!cur)return;
-  if(!confirm('确定删除记事「'+(cur.title||notesTitle(cur))+'」？'))return;
-  NOTES_OBJ.notes=NOTES_OBJ.notes.filter(n=>n.id!==cur.id);
+function deleteNote(id){
+  if(!NOTES_OBJ || NOTES_OBJ.notes.length<=1){ alert('至少保留一条笔记'); return; }
+  const tgt=NOTES_OBJ.notes.find(n=>n.id===id); if(!tgt)return;
+  if(!confirm('确定删除笔记「'+(tgt.title||notesTitle(tgt))+'」？'))return;
+  NOTES_OBJ.notes=NOTES_OBJ.notes.filter(n=>n.id!==id);
   NOTES_OBJ.currentId=NOTES_OBJ.notes[0].id;
-  const ta=document.getElementById('notesArea'); if(ta)ta.value=NOTES_OBJ.notes[0].content||'';
-  renderNotesList(NOTES_OBJ); persistNotes(NOTES_OBJ);
-}
-function renameNote(){
-  const cur=currentNote(NOTES_OBJ); if(!cur)return;
-  const old=cur.title||notesTitle(cur);
-  const t=prompt('修改记事标题：',old); if(t===null)return;
-  cur.title=t.trim()||notesTitle(cur);
-  renderNotesList(NOTES_OBJ); persistNotes(NOTES_OBJ);
+  const cur=currentNote(NOTES_OBJ);
+  const ta=document.getElementById('notesArea'); if(ta)ta.value=cur?cur.content:'';
+  renderNotesGrid(NOTES_OBJ); persistNotes(NOTES_OBJ);
 }
 function scheduleNotesSave(){
   const st=document.getElementById('notesStatus'); if(st)st.textContent='输入中…';
