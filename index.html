@@ -415,7 +415,7 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
       <option value="">全部来源</option><option value="必">必应</option><option value="立">立达</option><option value="启">启信宝</option><option value="风">风鸟</option><option value="寻">寻客宝</option></select>
     <select id="iSoe" class="filter-select inline-select" style="max-width:88px" onchange="render()">
       <option value="">全部性质</option><option value="国企">国企</option><option value="民营">民企</option></select>
-    <input type="text" id="iQ" class="search-inp" placeholder="搜索公司名 / 甲方 / 项目" oninput="render()">
+    <input type="text" id="iQ" class="search-inp" placeholder="搜索 公司/中标方/甲方/项目/手机/地区/需求 等关键词" oninput="render()">
   </div>
   <!-- 中标日期筛选 -->
   <div class="filter-row" style="gap:6px">
@@ -499,16 +499,26 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
 </div>
 <div id="phoneMenu"></div>
 
-<!-- ============ 记事本弹窗 ============ -->
+<!-- ============ 记事本弹窗（多记事） ============ -->
 <div class="modal-mask" id="notesModal" onclick="if(event.target===notesModal)closeNotes()">
-  <div class="modal-card" style="max-width:560px">
-    <div class="modal-title">📝 记事本<button class="client-icon-btn" onclick="closeNotes()">✕</button></div>
-    <div class="login-hint" style="text-align:left;margin:0 0 10px">本账号本地记录，自动保存（按账号隔离，仅本设备可见）。</div>
-    <textarea id="notesArea" rows="12" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box" placeholder="在这里记录一些信息…（自动保存）" oninput="scheduleNotesSave()"></textarea>
-    <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
-      <button class="login-btn" style="flex:1" onclick="saveNotes(true)">保存</button>
-      <button class="badge-btn" onclick="closeNotes()">关闭</button>
+  <div class="modal-card" style="max-width:760px;width:92vw">
+    <div class="modal-title">📝 记事本
+      <div style="display:flex;gap:8px">
+        <button class="badge-btn" onclick="newNote()">➕ 新建</button>
+        <button class="badge-btn" onclick="closeNotes()">关闭</button>
+        <button class="client-icon-btn" onclick="closeNotes()">✕</button>
+      </div>
+    </div>
+    <div class="login-hint" style="text-align:left;margin:0 0 10px">本账号本地记录，自动保存，按账号隔离（仅本设备可见）。可创建多条记事，标题自动取首行。</div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+      <select id="notesList" class="search-inp" style="flex:1;min-width:160px" onchange="switchNote(this.value)"></select>
+      <button class="badge-btn" onclick="renameNote()">✏️ 重命名</button>
+      <button class="badge-btn" onclick="deleteNote()">🗑 删除</button>
       <span id="notesStatus" style="font-size:12px;color:var(--text-light)"></span>
+    </div>
+    <textarea id="notesArea" rows="14" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box" placeholder="在这里记录一些信息…（自动保存，每条记事独立）" oninput="scheduleNotesSave()"></textarea>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px">
+      <button class="login-btn" style="min-width:90px" onclick="saveNotes(true)">保存</button>
     </div>
   </div>
 </div>
@@ -544,7 +554,7 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 const KEY="wb_client_v1", META_KEY="wb_client_meta";
 const SB_BASE="https://ekecxzijszqemqykpmkc.supabase.co/rest/v1";
 const SB_KEY="sb_publishable_aLbA-luAVpq6JvUCN7v_JA_IOsxHg7X";
-const SEED_TS="20260827123054";
+const SEED_TS="20260827125834";
 let DATA=loadData();
 let FILTER="全部", NEED="", BID_TYPE="", LEVEL="", CUR_ID="";
 let OWNER_FILTER="";                 // 管理员人员筛选：""=全部人员，否则按负责人(owner)过滤
@@ -692,8 +702,14 @@ function matchFilter(d){
   const soe=document.getElementById("iSoe").value;
   if(soe && d.soe!==soe) return false;
   const q=(document.getElementById("iQ").value||"").trim();
-  if(q){ const hay=(d.company+" "+(d.parties||[]).join(" ")+" "+((d.projects||[]).map(p=>p.项目).join(" "))).toLowerCase();
-    if(!hay.toLowerCase().includes(q.toLowerCase())) return false; }
+  if(q){
+    const qs=q.toLowerCase();
+    const phones=allPhones(d).map(p=>p.电话).concat([d.legalPhone||""]).filter(Boolean).join(" ");
+    const needs=((d.projects||[]).map(p=>(p.need||[]).join(" "))).join(" ");
+    const provs=[d.prov||"",d.addr||""].filter(Boolean).join(" ");
+    const hay=(d.company+" "+(d.parties||[]).join(" ")+" "+provs+" "+((d.projects||[]).map(p=>(p.项目||"")+" "+(p.甲方||"")).join(" "))+" "+needs+" "+phones+" "+(d.legal||"")+" "+(d.email||"")).toLowerCase().replace(/\s+/g," ");
+    if(!hay.includes(qs)) return false;
+  }
   const f=document.getElementById("iFrom").value, t=document.getElementById("iTo").value, md=maxDate(d);
   if((f||t) && md){ if(f&&md<f)return false; if(t&&md>t)return false; }
   const nf=document.getElementById("iNextFrom").value, nt=document.getElementById("iNextTo").value, nl=d.nextFollow||"";
@@ -977,26 +993,97 @@ function downloadTemplate(){
   });
   XLSX.writeFile(wb,"客户导入模板_"+new Date().toISOString().slice(0,10)+".xlsx");
 }
-/* —— 记事本（按账号本地保存，自动保存） —— */
+/* —— 记事本（多记事，按账号本地保存，自动保存） —— */
 function notesKey(){ return 'wb_notes_'+(SESSION&&SESSION.email?SESSION.email:'guest'); }
-function openNotes(){
+function notesTitle(note){ const t=(note.content||'').split('\n').map(x=>x.trim()).find(x=>x)||'未命名记事'; return t.length>24?t.slice(0,24)+'…':t; }
+function loadNotes(){
   NOTES_KEY=notesKey();
-  const ta=document.getElementById('notesArea');
-  try{ ta.value=localStorage.getItem(NOTES_KEY)||''; }catch(e){ ta.value=''; }
-  document.getElementById('notesStatus').textContent='';
-  document.getElementById('notesModal').classList.add('show');
-  setTimeout(()=>ta.focus(),50);
+  let raw='';
+  try{ raw=localStorage.getItem(NOTES_KEY)||''; }catch(e){}
+  if(raw && raw.trim() && (raw.trim()[0]!=='{' || raw.trim()[0]!=='[')){
+    // 兼容旧版单条字符串：转成第一条记事
+    return {notes:[{id:String(Date.now()),title:'默认记事',content:raw,updated_at:new Date().toISOString()}],currentId:''};
+  }
+  try{
+    const obj=JSON.parse(raw||'{}');
+    if(obj&&Array.isArray(obj.notes)&&obj.notes.length) return {notes:obj.notes,currentId:obj.currentId||obj.notes[0].id};
+  }catch(e){}
+  return {notes:[{id:String(Date.now()),title:'默认记事',content:'',updated_at:new Date().toISOString()}],currentId:''};
 }
-function closeNotes(){ document.getElementById('notesModal').classList.remove('show'); }
+function persistNotes(nb){
+  if(!NOTES_KEY)return;
+  try{ localStorage.setItem(NOTES_KEY,JSON.stringify(nb)); }catch(e){}
+}
+function currentNote(nb){ return (nb.notes||[]).find(n=>n.id===nb.currentId)||nb.notes[0]; }
+function renderNotesList(nb){
+  const sel=document.getElementById('notesList'); if(!sel)return;
+  sel.innerHTML='';
+  (nb.notes||[]).forEach(n=>{
+    const opt=document.createElement('option'); opt.value=n.id; opt.textContent=n.title||notesTitle(n);
+    if(n.id===nb.currentId) opt.selected=true;
+    sel.appendChild(opt);
+  });
+}
+let NOTES_OBJ=null; // 当前打开的记事本对象
 let _notesTimer=null;
+function flushNotes(){ if(_notesTimer){clearTimeout(_notesTimer);_notesTimer=null;} saveNotes(false); }
+function openNotes(){
+  NOTES_OBJ=loadNotes();
+  if(!NOTES_OBJ.currentId && NOTES_OBJ.notes.length) NOTES_OBJ.currentId=NOTES_OBJ.notes[0].id;
+  const ta=document.getElementById('notesArea');
+  const cur=currentNote(NOTES_OBJ);
+  if(ta) ta.value=cur?cur.content:'';
+  document.getElementById('notesStatus').textContent='';
+  renderNotesList(NOTES_OBJ);
+  document.getElementById('notesModal').classList.add('show');
+  setTimeout(()=>ta&&ta.focus(),50);
+}
+function closeNotes(){ flushNotes(); document.getElementById('notesModal').classList.remove('show'); }
+function switchNote(id){
+  if(!NOTES_OBJ)return;
+  flushNotes();
+  NOTES_OBJ.currentId=id;
+  const cur=currentNote(NOTES_OBJ);
+  const ta=document.getElementById('notesArea'); if(ta)ta.value=cur?cur.content:'';
+  document.getElementById('notesStatus').textContent='';
+}
+function newNote(){
+  if(!NOTES_OBJ)return;
+  flushNotes();
+  const id=String(Date.now());
+  const n={id,title:'新记事',content:'',updated_at:new Date().toISOString()};
+  NOTES_OBJ.notes.push(n); NOTES_OBJ.currentId=id;
+  const ta=document.getElementById('notesArea'); if(ta)ta.value='';
+  renderNotesList(NOTES_OBJ); persistNotes(NOTES_OBJ);
+  setTimeout(()=>ta&&ta.focus(),50);
+}
+function deleteNote(){
+  if(!NOTES_OBJ || NOTES_OBJ.notes.length<=1){ alert('至少保留一条记事'); return; }
+  const cur=currentNote(NOTES_OBJ); if(!cur)return;
+  if(!confirm('确定删除记事「'+(cur.title||notesTitle(cur))+'」？'))return;
+  NOTES_OBJ.notes=NOTES_OBJ.notes.filter(n=>n.id!==cur.id);
+  NOTES_OBJ.currentId=NOTES_OBJ.notes[0].id;
+  const ta=document.getElementById('notesArea'); if(ta)ta.value=NOTES_OBJ.notes[0].content||'';
+  renderNotesList(NOTES_OBJ); persistNotes(NOTES_OBJ);
+}
+function renameNote(){
+  const cur=currentNote(NOTES_OBJ); if(!cur)return;
+  const old=cur.title||notesTitle(cur);
+  const t=prompt('修改记事标题：',old); if(t===null)return;
+  cur.title=t.trim()||notesTitle(cur);
+  renderNotesList(NOTES_OBJ); persistNotes(NOTES_OBJ);
+}
 function scheduleNotesSave(){
   const st=document.getElementById('notesStatus'); if(st)st.textContent='输入中…';
   if(_notesTimer)clearTimeout(_notesTimer);
   _notesTimer=setTimeout(()=>saveNotes(false),800);
 }
 function saveNotes(manual){
+  if(!NOTES_OBJ)return;
   const ta=document.getElementById('notesArea'); if(!ta)return;
-  try{ localStorage.setItem(NOTES_KEY,ta.value); }catch(e){ if(manual)alert('保存失败：'+e.message); return; }
+  const cur=currentNote(NOTES_OBJ); if(!cur)return;
+  cur.content=ta.value; cur.title=notesTitle(cur); cur.updated_at=new Date().toISOString();
+  persistNotes(NOTES_OBJ);
   const st=document.getElementById('notesStatus'); if(st)st.textContent=manual?'已保存 ✓':'已自动保存 ✓';
 }
 
