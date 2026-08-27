@@ -550,7 +550,7 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 const KEY="wb_client_v1", META_KEY="wb_client_meta";
 const SB_BASE="https://ekecxzijszqemqykpmkc.supabase.co/rest/v1";
 const SB_KEY="sb_publishable_aLbA-luAVpq6JvUCN7v_JA_IOsxHg7X";
-const SEED_TS="20260827134541";
+const SEED_TS="20260827135326";
 let DATA=loadData();
 let FILTER="全部", NEED="", BID_TYPE="", LEVEL="", CUR_ID="";
 let OWNER_FILTER="";                 // 管理员人员筛选：""=全部人员，否则按负责人(owner)过滤
@@ -1015,14 +1015,20 @@ function renderNotesGrid(nb){
   grid.innerHTML='';
   (nb.notes||[]).forEach(n=>{
     const el=document.createElement('div');
-    el.style.cssText='position:relative;padding:10px 30px 10px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer;background:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;';
-    if(n.id===nb.currentId) el.style.cssText+='border-color:var(--primary);background:#f0f5ff;font-weight:600;';
+    el.style.cssText='position:relative;min-height:96px;padding:10px 30px 12px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer;background:#fff;overflow:hidden;';
+    if(n.id===nb.currentId) el.style.cssText+='border-color:var(--primary);background:#f0f5ff;';
     el.onclick=(e)=>{ if(e.target.closest('.note-del'))return; switchNote(n.id); };
     const title=document.createElement('div'); title.textContent=n.title||notesTitle(n);
+    title.style.cssText='font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+    const prev=document.createElement('div');
+    const lines=(n.content||'').split('\n');
+    const preview=(lines.slice(1).join('\n').trim()||lines[0]||'(空笔记)');
+    prev.textContent=preview;
+    prev.style.cssText='font-size:12px;color:var(--text-light);line-height:1.5;white-space:pre-wrap;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;';
     const del=document.createElement('span'); del.className='note-del'; del.textContent='✕'; del.title='删除该笔记';
     del.style.cssText='position:absolute;top:6px;right:8px;color:#c0c0c0;font-size:12px;cursor:pointer;';
     del.onclick=(e)=>{ e.stopPropagation(); deleteNote(n.id); };
-    el.appendChild(title); el.appendChild(del);
+    el.appendChild(title); el.appendChild(prev); el.appendChild(del);
     grid.appendChild(el);
   });
 }
