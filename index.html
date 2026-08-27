@@ -178,7 +178,7 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
 .fab{position:fixed;right:18px;bottom:20px;z-index:40}
 .fab button{width:44px;height:44px;border-radius:50%;border:none;background:var(--primary);color:#fff;font-size:20px;box-shadow:0 4px 12px rgba(91,108,249,.4);cursor:pointer}
 /* ===== 登录遮罩 ===== */
-#loginOverlay{position:fixed;inset:0;z-index:3000;background:linear-gradient(135deg,#5B6CF9,#7C8DF5);display:flex;align-items:center;justify-content:center;padding:16px}
+#loginOverlay{position:fixed;inset:0;z-index:3000;background:linear-gradient(135deg,#5B6CF9,#7C8DF5);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
 .login-card{width:100%;max-width:380px;background:#fff;border-radius:20px;padding:24px 22px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 .login-title{font-size:20px;font-weight:700;text-align:center;color:var(--text-primary)}
 .login-sub{font-size:12px;color:var(--text-light);text-align:center;margin-top:4px;margin-bottom:16px}
@@ -550,7 +550,7 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 const KEY="wb_client_v1", META_KEY="wb_client_meta";
 const SB_BASE="https://ekecxzijszqemqykpmkc.supabase.co/rest/v1";
 const SB_KEY="sb_publishable_aLbA-luAVpq6JvUCN7v_JA_IOsxHg7X";
-const SEED_TS="20260827135326";
+const SEED_TS="20260827141257";
 let DATA=loadData();
 let FILTER="全部", NEED="", BID_TYPE="", LEVEL="", CUR_ID="";
 let OWNER_FILTER="";                 // 管理员人员筛选：""=全部人员，否则按负责人(owner)过滤
@@ -1180,7 +1180,7 @@ function switchLoginTab(t){
     const tab=document.getElementById('tab'+cap);if(tab)tab.classList.toggle('active',x===t);
     const pane=document.getElementById('pane'+cap);if(pane)pane.style.display=x===t?'block':'none';});
 }
-function toggleReg(){const b=document.getElementById('regBox');if(!b)return;const show=b.style.display!=='block';b.style.display=show?'block':'none';if(show)switchLoginTab('email');}
+function toggleReg(){const b=document.getElementById('regBox');if(!b)return;const show=b.style.display!=='block';switchLoginTab('email');b.style.display=show?'block':'none';}
 function showLogin(){document.getElementById('loginOverlay').style.display='flex';document.querySelector('.app').style.display='none';const pc=document.getElementById('phoneCodeBtn');if(pc)pc.style.display=IS_PHONE?'block':'none';}
 function hideLogin(){document.getElementById('loginOverlay').style.display='none';document.querySelector('.app').style.display='block';closePhoneCode();const sb=document.getElementById('sessionBar');if(sb)sb.style.display='inline-flex';const em=document.getElementById('sbEmail');if(em)em.textContent=SESSION.nickname||'我的工作台';const ad=document.getElementById('btnAdmin');if(ad)ad.style.display=SESSION.role==='admin'?'inline-flex':'none';const pf=document.getElementById('btnProfile');if(pf)pf.style.display=SESSION.email?'inline-flex':'none';const ofr=document.getElementById('ownerFilterRow');if(ofr)ofr.style.display=SESSION.role==='admin'?'flex':'none';if(SESSION.role==='admin')loadOwnerOptions();}
 function openPhoneCode(){const m=document.getElementById('phoneCodeModal');if(m){m.classList.add('show');const i=document.getElementById('lgCode');if(i){i.value='';setLgStatus('');i.focus();}}}
