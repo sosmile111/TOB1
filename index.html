@@ -358,8 +358,7 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
     </div>
     <div style="display:inline-flex;gap:6px;flex-wrap:wrap">
       <button class="badge-btn" onclick="exportData()">📤 导出</button>
-      <button class="badge-btn" onclick="document.getElementById('file').click()">📥 导入</button>
-      <button class="badge-btn" onclick="downloadTemplate()">📋 模板</button>
+      <button class="badge-btn" onclick="openImportDialog()">📥 导入</button>
       <button class="badge-btn" onclick="openNotes()">📝 记事</button>
       <button class="badge-btn" onclick="syncNow(true)">🔄 同步<span class="sync-dot" id="syncDot"></span></button>
       <span class="session-bar" id="sessionBar" style="display:none">
@@ -518,6 +517,20 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
     </div>
   </div>
 </div>
+<!-- 导入对话框：下载模板 / 选择文件上传 -->
+<div class="modal-mask" id="importModal" onclick="if(event.target===this)closeImportDialog()">
+  <div class="modal-card" style="max-width:420px">
+    <div class="modal-title">📥 导入客户数据</div>
+    <div class="login-hint" style="text-align:left;margin:0 0 14px">
+      首次使用请先下载<b>导入模板</b>（已含全部客户字段），按列填写后上传；也可直接选择已填好的 Excel 文件上传。
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="login-btn" onclick="downloadTemplate()">📋 下载导入模板</button>
+      <button class="login-btn" style="background:linear-gradient(135deg,#34d399,#10b981)" onclick="document.getElementById('file').click();closeImportDialog()">📁 选择文件上传</button>
+      <button class="badge-btn" onclick="closeImportDialog()" style="align-self:center">取消</button>
+    </div>
+  </div>
+</div>
 <input type="file" id="file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="doImport(event)">
 <div class="fab"><button onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button></div>
 
@@ -550,7 +563,7 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 const KEY="wb_client_v1", META_KEY="wb_client_meta";
 const SB_BASE="https://ekecxzijszqemqykpmkc.supabase.co/rest/v1";
 const SB_KEY="sb_publishable_aLbA-luAVpq6JvUCN7v_JA_IOsxHg7X";
-const SEED_TS="20260827212924";
+const SEED_TS="20260827224937";
 let DATA=loadData();
 let FILTER="全部", NEED="", BID_TYPE="", LEVEL="", CUR_ID="";
 let OWNER_FILTER="";                 // 管理员人员筛选：""=全部人员，否则按负责人(owner)/assignments 过滤
@@ -612,10 +625,10 @@ function phLabel(p){
 function levelBadge(lv){ if(!lv) return `<span class="level-badge lv-empty">待定</span>`; const cls={"A":"lv-A","B":"lv-B","C":"lv-C","D":"lv-D","E":"lv-E"}[lv]||"lv-C"; return `<span class="level-badge ${cls}">${esc(lv)}</span>`; }
 function maxDate(d){let mx="";(d.projects||[]).forEach(p=>{const m=String(p.日期||"").match(/\d{4}-\d{2}-\d{2}/); if(m&&m[0]>mx)mx=m[0];});return mx;}
 function allPhones(d){
-  const out=[]; const push=(num,type,src,name,target,nameTarget)=>{if(!num||num==="待补")return;const k=String(num);if(!out.find(x=>x.电话===k))out.push({电话:k,类型:type,来源:src,联系人:name||"",target:target,nameTarget:nameTarget});};
-  (d.phones||[]).forEach((p,idx)=>push(p.电话,p.类型,p.来源,p.联系人||"","phones["+idx+"].电话","phones["+idx+"].联系人"));
-  [["c1p","寻客宝","寻","c1"],["c2p","寻客宝","寻","c2"],["c3p","寻客宝","寻","c3"]].forEach(([f,t,s,nf])=>{if(d[f])push(d[f],t,s,d[nf]||"",f,nf);});
-  if(d.legalPhone)push(d.legalPhone,"法人手机","风",d.legal||"","legalPhone","legal");
+  const out=[]; const push=(num,type,src,name,role,weight,target,nameTarget)=>{if(!num||num==="待补")return;const k=String(num);if(!out.find(x=>x.电话===k))out.push({电话:k,类型:type,来源:src,联系人:name||"",角色:role||"",权重:weight||"",target:target,nameTarget:nameTarget});};
+  (d.phones||[]).forEach((p,idx)=>push(p.电话,p.类型,p.来源,p.联系人||"",p.角色||"",p.权重||"","phones["+idx+"].电话","phones["+idx+"].联系人"));
+  [["c1p","寻客宝","寻","c1"],["c2p","寻客宝","寻","c2"],["c3p","寻客宝","寻","c3"]].forEach(([f,t,s,nf])=>{if(d[f])push(d[f],t,s,d[nf]||"","","",f,nf);});
+  if(d.legalPhone)push(d.legalPhone,"法人手机","风",d.legal||"","","","legalPhone","legal");
   return out.slice(0,6);
 }
 function setPath(obj,path,val){ const m=String(path).match(/^(\w+)\[(\d+)\]\.(\w+)$/); if(m){ if(obj[m[1]]&&obj[m[1]][+m[2]]){obj[m[1]][+m[2]][m[3]]=val;} return; } if(obj&&path)obj[path]=val; }
@@ -901,16 +914,45 @@ function addLog(id){
   save(id); openClient(id); render();
 }
 /* ===== Excel 导入/导出（SheetJS，已内联，离线可用） ===== */
+/* 客户行：导出与导入模板共用，确保字段完全一致（含全部客户信息） */
+function clientRow(d){
+  return {
+    "客户ID": d.id||"",
+    "公司名称": d.company||"",
+    "省份": d.prov||"",
+    "性质": d.soe||"",
+    "性质依据": d.soeWhy||"",
+    "客户等级": d.level||"",
+    "是否新客": d.isNew?"是":"否",
+    "跟进状态": d.status||"待跟进",
+    "负责人": d.owner||"",
+    "下次跟进": d.nextFollow||"",
+    "乙方地址": d.addr||"",
+    "法人": d.legal||"",
+    "法人手机": d.legalPhone||"",
+    "企业邮箱": d.email||"",
+    "财务": d.finance||"",
+    "财务手机": d.financePhones||"",
+    "项目经理": d.pm||"",
+    "项目经理手机": d.pmPhone||"",
+    "电话1名称": d.c1||"",
+    "电话1": d.c1p||"",
+    "电话2名称": d.c2||"",
+    "电话2": d.c2p||"",
+    "电话3名称": d.c3||"",
+    "电话3": d.c3p||"",
+    "甲方单位": (d.parties||[]).join(" / "),
+    "中标次数": d.count||1,
+    "备注需求": d.note||""
+  };
+}
 function wbSheets(rows){
   const clients=[],projects=[],phones=[],logs=[];
   rows.forEach(d=>{
-    clients.push({"客户ID":d.id||"","公司名称":d.company||"","省份":d.prov||"","性质":d.soe||"",
-      "客户等级":d.level||"","是否新客":d.isNew?"是":"","跟进状态":d.status||"待跟进","负责人":d.owner||"",
-      "下次跟进":d.nextFollow||"","乙方地址":d.addr||"","法人":d.legal||"","法人手机":d.legalPhone||"",
-      "企业邮箱":d.email||"","中标次数":d.count||1});
+    clients.push(clientRow(d));
     (d.projects||[]).forEach((p,i)=>{projects.push({"客户ID":d.id||"","序号":i+1,"项目名称":p.项目||"","甲方":p.甲方||"",
       "金额(万)":p.金额万||"","类型":p.类型||"","日期":p.日期||"","链接":p.链接||"","来源":p.来源||"","需求类型":(p.need||[]).join(" / ")});});
-    allPhones(d).forEach(p=>{phones.push({"客户ID":d.id||"","电话":p.电话||"","联系人":p.联系人||"","类型":p.类型||"","来源":p.来源||""});});
+    allPhones(d).forEach(p=>{phones.push({"客户ID":d.id||"","电话":p.电话||"","联系人":p.联系人||"","类型":p.类型||"","来源":p.来源||"","角色":p.角色||"","权重":p.权重||""});});
     (d.logs||[]).forEach(l=>{logs.push({"客户ID":d.id||"","时间":l.t||"","内容":l.text||""});});
   });
   return {clients,projects,phones,logs};
@@ -929,6 +971,8 @@ function exportData(){
   exportXlsx(visibleData(),"客户数据_"+((SESSION&&SESSION.email)||"me")+"_"+new Date().toISOString().slice(0,10)+".xlsx");
 }
 function exportAll(){ exportXlsx(DATA,"全险客户数据_"+new Date().toISOString().slice(0,10)+".xlsx"); }
+function openImportDialog(){ const m=document.getElementById('importModal'); if(m)m.classList.add('show'); }
+function closeImportDialog(){ const m=document.getElementById('importModal'); if(m)m.classList.remove('show'); }
 function doImport(e){
   const f=e.target.files[0];if(!f)return;
   if(typeof XLSX==='undefined'){alert('Excel 组件未加载，请重新生成工作台后再试。');e.target.value="";return;}
@@ -940,19 +984,28 @@ function doImport(e){
     if(!cs.length){alert("Excel 中未找到「客户」工作表，无法导入。");return;}
     const map=new Map();
     cs.forEach(r=>{const id=String(r["客户ID"]||"").trim();if(!id)return;
-      map.set(id,{id,company:String(r["公司名称"]||""),prov:String(r["省份"]||""),soe:String(r["性质"]||""),
-        level:String(r["客户等级"]||"C"),isNew:String(r["是否新客"]||"")==="是",status:String(r["跟进状态"]||"待跟进"),
-        owner:String(r["负责人"]||""),nextFollow:String(r["下次跟进"]||""),addr:String(r["乙方地址"]||""),
-        legal:String(r["法人"]||""),legalPhone:String(r["法人手机"]||""),email:String(r["企业邮箱"]||""),
-        count:parseInt(r["中标次数"]||"1",10)||1,projects:[],phones:[],logs:[],parties:[],
-        finance:"",financePhones:"",pm:"",pmPhone:"",c1:"",c1p:"",c2:"",c2p:"",c3:"",c3p:"",note:"",_syncAt:0});});
+      const parties=String(r["甲方单位"]||"").split(" / ").map(x=>x.trim()).filter(Boolean);
+      map.set(id,{
+        id, company:String(r["公司名称"]||""), prov:String(r["省份"]||""), soe:String(r["性质"]||""),
+        soeWhy:String(r["性质依据"]||""), level:String(r["客户等级"]||"C"),
+        isNew:String(r["是否新客"]||"")==="是", status:String(r["跟进状态"]||"待跟进"),
+        owner:String(r["负责人"]||""), nextFollow:String(r["下次跟进"]||""), addr:String(r["乙方地址"]||""),
+        legal:String(r["法人"]||""), legalPhone:String(r["法人手机"]||""), email:String(r["企业邮箱"]||""),
+        finance:String(r["财务"]||""), financePhones:String(r["财务手机"]||""),
+        pm:String(r["项目经理"]||""), pmPhone:String(r["项目经理手机"]||""),
+        c1:String(r["电话1名称"]||""), c1p:String(r["电话1"]||""),
+        c2:String(r["电话2名称"]||""), c2p:String(r["电话2"]||""),
+        c3:String(r["电话3名称"]||""), c3p:String(r["电话3"]||""),
+        parties, note:String(r["备注需求"]||""),
+        count:parseInt(r["中标次数"]||"1",10)||1, projects:[], phones:[], logs:[], _syncAt:0});});
     ps.forEach(r=>{const id=String(r["客户ID"]||"").trim();const d=map.get(id);if(!d)return;
       d.projects.push({项目:String(r["项目名称"]||""),甲方:String(r["甲方"]||""),金额万:String(r["金额(万)"]||""),
         类型:String(r["类型"]||""),日期:String(r["日期"]||""),链接:String(r["链接"]||""),来源:String(r["来源"]||""),
         need:String(r["需求类型"]||"").split(" / ").map(x=>x.trim()).filter(Boolean)});});
     ph.forEach(r=>{const id=String(r["客户ID"]||"").trim();const d=map.get(id);if(!d)return;
       const num=String(r["电话"]||"").trim();if(!num)return;
-      d.phones.push({电话:num,联系人:String(r["联系人"]||""),类型:String(r["类型"]||""),来源:String(r["来源"]||"")});});
+      d.phones.push({电话:num,联系人:String(r["联系人"]||""),类型:String(r["类型"]||""),来源:String(r["来源"]||""),
+        角色:String(r["角色"]||""),权重:String(r["权重"]||"")});});
     lg.forEach(r=>{const id=String(r["客户ID"]||"").trim();const d=map.get(id);if(!d)return;
       const t=String(r["时间"]||""),text=String(r["内容"]||"");if(!text)return;d.logs.push({t,text});});
     map.forEach(d=>{if(!d.parties.length){d.parties=[...new Set((d.projects||[]).map(p=>(p.甲方||"")).filter(Boolean))];}
@@ -1000,10 +1053,19 @@ async function assignToAccount(email,ids){
 }
 function downloadTemplate(){
   if(typeof XLSX==='undefined'){alert('Excel 组件未加载，请重新生成工作台后再试。');return;}
+  // 模板 = 导出的完整字段（含全部客户信息），附带一行示例，导入前请删除示例行
+  const sampleClient=clientRow({
+    id:"C0001", company:"示例建设有限公司", prov:"广东", soe:"民营", soeWhy:"", level:"C",
+    isNew:true, status:"待跟进", owner:"", nextFollow:"2026-09-01", addr:"广州市天河区",
+    legal:"张三", legalPhone:"13800000000", email:"demo@demo.com",
+    finance:"李四", financePhones:"13900000000", pm:"王五", pmPhone:"13700000000",
+    c1:"电话1", c1p:"13811111111", c2:"电话2", c2p:"13822222222", c3:"电话3", c3p:"13833333333",
+    parties:["某市政公司","某城投集团"], count:1, note:"（示例行，导入前请整行删除）"
+  });
   const sample={
-    客户:[{客户ID:"C0001",公司名称:"示例建设有限公司",省份:"广东",性质:"民营",客户等级:"C",是否新客:"是",跟进状态:"待跟进",负责人:"",下次跟进:"2026-09-01",乙方地址:"广州市天河区",法人:"张三",法人手机:"13800000000",企业邮箱:"demo@demo.com",中标次数:1}],
+    客户:[sampleClient],
     项目:[{客户ID:"C0001",序号:1,项目名称:"某道路工程",甲方:"某市政公司",金额万:500,类型:"中标",日期:"2026-08-20",链接:"",来源:"必应",需求类型:"保函 / 建工险"}],
-    电话:[{客户ID:"C0001",电话:"13800000000",联系人:"张三",类型:"法人手机",来源:"风鸟"}],
+    电话:[{客户ID:"C0001",电话:"13800000000",联系人:"张三",类型:"法人手机",来源:"风鸟",角色:"法人",权重:""}],
     跟进:[{客户ID:"C0001",时间:"2026-08-27 10:00",内容:"首次电话沟通，了解保函需求"}]
   };
   const wb=XLSX.utils.book_new();
