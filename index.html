@@ -563,7 +563,7 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 const KEY="wb_client_v1", META_KEY="wb_client_meta";
 const SB_BASE="https://ekecxzijszqemqykpmkc.supabase.co/rest/v1";
 const SB_KEY="sb_publishable_aLbA-luAVpq6JvUCN7v_JA_IOsxHg7X";
-const SEED_TS="20260827224937";
+const SEED_TS="20260828000225";
 let DATA=loadData();
 let FILTER="全部", NEED="", BID_TYPE="", LEVEL="", CUR_ID="";
 let OWNER_FILTER="";                 // 管理员人员筛选：""=全部人员，否则按负责人(owner)/assignments 过滤
@@ -688,7 +688,8 @@ function setLevel(el,val){ LEVEL=val; document.querySelectorAll('#levelFilter .f
   if(el)el.classList.add('active'); render(); }
 
 function renderStats(){
-  const all=visibleData().filter(matchFilter);
+  // 统计卡片只受顶部筛选（省份/来源/性质/搜索/日期/需求）影响，不受卡片自身的 FILTER/LEVEL 影响，避免双击过滤
+  const all=visibleData().filter(matchFilterCore);
   const t=all.length;
   const deal=all.filter(d=>d.status==="已成交").length;
   const quote=all.filter(d=>d.status==="已报价").length;
@@ -704,14 +705,9 @@ function renderStats(){
   csAll.textContent=t; csDeal.textContent=deal; csQuote.textContent=quote; csTodo.textContent=todo; csPhone.textContent=ph; csToday.textContent=today;
   cs7d.textContent=w7; csA.textContent=a; csB.textContent=b; csC.textContent=c; csD.textContent=d2; csE.textContent=e;
 }
-function matchFilter(d){
-  if(FILTER==="全部"){}
-  else if(FILTER==="有电话"){ if(!allPhones(d).length)return false; }
-  else if(FILTER==="今日"){ if(d.nextFollow!==todayStr())return false; }
-  else if(FILTER==="7日"){ if(!withinDays(d.nextFollow,7)) return false; }
-  else if(d.status!==FILTER) return false;
+/* 顶部公共筛选（供 renderStats / 统计卡片用）：不包含 FILTER/LEVEL 卡片过滤 */
+function matchFilterCore(d){
   if(NEED && !((d.projects||[]).some(p=>(p.need||[]).includes(NEED)))) return false;
-  if(LEVEL && (d.level||"C")!==LEVEL) return false;
   const prov=document.getElementById("iProv").value;
   if(prov && d.prov!==prov) return false;
   const src=document.getElementById("iSrc").value;
@@ -732,6 +728,16 @@ function matchFilter(d){
   const nf=document.getElementById("iNextFrom").value, nt=document.getElementById("iNextTo").value, nl=d.nextFollow||"";
   if(nf||nt){ if(!nl)return false; if(nf&&nl<nf)return false; if(nt&&nl>nt)return false; }
   return true;
+}
+/* 列表完整筛选：在顶部筛选基础上叠加状态/等级卡片过滤 */
+function matchFilter(d){
+  if(FILTER==="全部"){}
+  else if(FILTER==="有电话"){ if(!allPhones(d).length)return false; }
+  else if(FILTER==="今日"){ if(d.nextFollow!==todayStr())return false; }
+  else if(FILTER==="7日"){ if(!withinDays(d.nextFollow,7)) return false; }
+  else if(d.status!==FILTER) return false;
+  if(LEVEL && (d.level||"C")!==LEVEL) return false;
+  return matchFilterCore(d);
 }
 function render(){
   renderStats();
