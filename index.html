@@ -359,6 +359,8 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
     <div style="display:inline-flex;gap:6px;flex-wrap:wrap">
       <button class="badge-btn" onclick="exportData()">📤 导出</button>
       <button class="badge-btn" onclick="document.getElementById('file').click()">📥 导入</button>
+      <button class="badge-btn" onclick="downloadTemplate()">📋 模板</button>
+      <button class="badge-btn" onclick="openNotes()">📝 记事</button>
       <button class="badge-btn" onclick="syncNow(true)">🔄 同步<span class="sync-dot" id="syncDot"></span></button>
       <span class="session-bar" id="sessionBar" style="display:none">
         <span class="sb-email" id="sbEmail"></span>
@@ -367,6 +369,15 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
         <button class="badge-btn" onclick="logout()">退出</button>
       </span>
     </div>
+  </div>
+
+  <!-- 管理员：人员筛选（按负责人归属查看/编辑/导入/导出指定人员客户） -->
+  <div class="filter-row" id="ownerFilterRow" style="display:none;align-items:center;gap:6px">
+    <span style="font-size:11px;color:var(--text-light)">👥 人员</span>
+    <select id="iOwnerFilter" class="filter-select inline-select" style="max-width:200px" onchange="setOwnerFilter(this.value)">
+      <option value="">全部人员</option>
+    </select>
+    <span id="ownerFilterHint" style="font-size:11px;color:var(--text-light)"></span>
   </div>
 
   <!-- 筛选行1：跟进状态 -->
@@ -487,6 +498,20 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
   <div class="modal-card" id="clientModalCard"></div>
 </div>
 <div id="phoneMenu"></div>
+
+<!-- ============ 记事本弹窗 ============ -->
+<div class="modal-mask" id="notesModal" onclick="if(event.target===notesModal)closeNotes()">
+  <div class="modal-card" style="max-width:560px">
+    <div class="modal-title">📝 记事本<button class="client-icon-btn" onclick="closeNotes()">✕</button></div>
+    <div class="login-hint" style="text-align:left;margin:0 0 10px">本账号本地记录，自动保存（按账号隔离，仅本设备可见）。</div>
+    <textarea id="notesArea" rows="12" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box" placeholder="在这里记录一些信息…（自动保存）" oninput="scheduleNotesSave()"></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+      <button class="login-btn" style="flex:1" onclick="saveNotes(true)">保存</button>
+      <button class="badge-btn" onclick="closeNotes()">关闭</button>
+      <span id="notesStatus" style="font-size:12px;color:var(--text-light)"></span>
+    </div>
+  </div>
+</div>
 <input type="file" id="file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="doImport(event)">
 <div class="fab"><button onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button></div>
 
@@ -519,9 +544,11 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 const KEY="wb_client_v1", META_KEY="wb_client_meta";
 const SB_BASE="https://ekecxzijszqemqykpmkc.supabase.co/rest/v1";
 const SB_KEY="sb_publishable_aLbA-luAVpq6JvUCN7v_JA_IOsxHg7X";
-const SEED_TS="20260827121307";
+const SEED_TS="20260827123054";
 let DATA=loadData();
 let FILTER="全部", NEED="", BID_TYPE="", LEVEL="", CUR_ID="";
+let OWNER_FILTER="";                 // 管理员人员筛选：""=全部人员，否则按负责人(owner)过滤
+let NOTES_KEY="";                    // 记事本存储键（按账号隔离）
 
 function loadData(){
   let local=null, meta=null;
@@ -905,9 +932,72 @@ function doImport(e){
       const t=String(r["时间"]||""),text=String(r["内容"]||"");if(!text)return;d.logs.push({t,text});});
     map.forEach(d=>{if(!d.parties.length){d.parties=[...new Set((d.projects||[]).map(p=>(p.甲方||"")).filter(Boolean))];}
       if(!d.count||d.count<1)d.count=d.projects.length||1;});
-    DATA=Array.from(map.values());DATA.forEach(d=>{if(!d.updated_at)d.updated_at=new Date().toISOString();});save();render();alert("已导入 "+DATA.length+" 家客户（来自 Excel）");
+    if(SESSION.role==='admin'&&OWNER_FILTER){ // 管理员选定人员时，导入客户自动归属该人员并授权其可见
+      map.forEach(d=>{ if(!d.owner) d.owner=OWNER_FILTER; });
+      assignToAccount(OWNER_FILTER, Array.from(map.keys()));
+    }
+    DATA=Array.from(map.values());DATA.forEach(d=>{if(!d.updated_at)d.updated_at=new Date().toISOString();});save();render();alert("已导入 "+DATA.length+" 家客户（来自 Excel）"+(SESSION.role==='admin'&&OWNER_FILTER?"，已归属「"+OWNER_FILTER+"」":""));
   }catch(err){alert("Excel 解析失败："+(err&&err.message?err.message:err));}};
   rd.readAsArrayBuffer(f);e.target.value="";
+}
+
+/* ===== 管理员人员筛选 / 导入模板 / 记事本 ===== */
+function setOwnerFilter(v){
+  OWNER_FILTER=v||"";
+  const sel=document.getElementById('iOwnerFilter');
+  const hint=document.getElementById('ownerFilterHint');
+  const name=sel&&sel.selectedOptions&&sel.selectedOptions[0]?sel.selectedOptions[0].text:'';
+  if(hint){ hint.textContent=OWNER_FILTER?('仅显示「'+name+'」负责的客户'):''; }
+  render();
+}
+async function loadOwnerOptions(){
+  const sel=document.getElementById('iOwnerFilter'); if(!sel)return;
+  try{
+    const rows=await sbSelect('accounts','order=email.asc');
+    const cur=OWNER_FILTER;
+    sel.innerHTML='<option value="">全部人员</option>'+
+      (rows||[]).map(a=>`<option value="${esc(a.email)}">${esc(a.nickname||a.email)}${a.role==='admin'?'（管理员）':''}</option>`).join('');
+    if(cur) sel.value=cur;
+  }catch(e){ /* 账号表不可用时仅保留“全部人员” */ }
+}
+async function assignToAccount(email,ids){
+  for(const id of (ids||[])){ try{ await sbInsert('assignments',{email,customer_id:id}); }catch(e){} }
+}
+function downloadTemplate(){
+  if(typeof XLSX==='undefined'){alert('Excel 组件未加载，请重新生成工作台后再试。');return;}
+  const sample={
+    客户:[{客户ID:"C0001",公司名称:"示例建设有限公司",省份:"广东",性质:"民营",客户等级:"C",是否新客:"是",跟进状态:"待跟进",负责人:"",下次跟进:"2026-09-01",乙方地址:"广州市天河区",法人:"张三",法人手机:"13800000000",企业邮箱:"demo@demo.com",中标次数:1}],
+    项目:[{客户ID:"C0001",序号:1,项目名称:"某道路工程",甲方:"某市政公司",金额万:500,类型:"中标",日期:"2026-08-20",链接:"",来源:"必应",需求类型:"保函 / 建工险"}],
+    电话:[{客户ID:"C0001",电话:"13800000000",联系人:"张三",类型:"法人手机",来源:"风鸟"}],
+    跟进:[{客户ID:"C0001",时间:"2026-08-27 10:00",内容:"首次电话沟通，了解保函需求"}]
+  };
+  const wb=XLSX.utils.book_new();
+  ["客户","项目","电话","跟进"].forEach(n=>{
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sample[n]),n);
+  });
+  XLSX.writeFile(wb,"客户导入模板_"+new Date().toISOString().slice(0,10)+".xlsx");
+}
+/* —— 记事本（按账号本地保存，自动保存） —— */
+function notesKey(){ return 'wb_notes_'+(SESSION&&SESSION.email?SESSION.email:'guest'); }
+function openNotes(){
+  NOTES_KEY=notesKey();
+  const ta=document.getElementById('notesArea');
+  try{ ta.value=localStorage.getItem(NOTES_KEY)||''; }catch(e){ ta.value=''; }
+  document.getElementById('notesStatus').textContent='';
+  document.getElementById('notesModal').classList.add('show');
+  setTimeout(()=>ta.focus(),50);
+}
+function closeNotes(){ document.getElementById('notesModal').classList.remove('show'); }
+let _notesTimer=null;
+function scheduleNotesSave(){
+  const st=document.getElementById('notesStatus'); if(st)st.textContent='输入中…';
+  if(_notesTimer)clearTimeout(_notesTimer);
+  _notesTimer=setTimeout(()=>saveNotes(false),800);
+}
+function saveNotes(manual){
+  const ta=document.getElementById('notesArea'); if(!ta)return;
+  try{ localStorage.setItem(NOTES_KEY,ta.value); }catch(e){ if(manual)alert('保存失败：'+e.message); return; }
+  const st=document.getElementById('notesStatus'); if(st)st.textContent=manual?'已保存 ✓':'已自动保存 ✓';
 }
 
 /* ===== Supabase 云同步（全量跨设备实时 + 不丢） ===== */
@@ -983,7 +1073,11 @@ function sbInsert(t,body){return sbReq(t,{method:'POST',json:true,prefer:'return
 function sbUpdate(t,q,body){return sbReq(t,{method:'PATCH',json:true,prefer:'return=minimal',q,body});}
 function sbDelete(t,q){return sbReq(t,{method:'DELETE',q});}
 async function sha256(s){const b=new TextEncoder().encode(s);const h=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('');}
-function visibleData(){const base=(SESSION&&SESSION.role==='admin')?DATA:DATA.filter(d=>ASSIGN.has(d.id));return base.filter(d=>!d._deleted);}
+function visibleData(){
+  let base=(SESSION&&SESSION.role==='admin')?DATA:DATA.filter(d=>ASSIGN.has(d.id));
+  if(SESSION&&SESSION.role==='admin'&&OWNER_FILTER) base=base.filter(d=>(d.owner||"")===OWNER_FILTER);
+  return base.filter(d=>!d._deleted);
+}
 function setLgStatus(m,err){const el=document.getElementById('loginStatus');if(el){el.textContent=m||'';el.style.color=err?'#ff4d4f':'#52c41a';}const pe=document.getElementById('phoneCodeStatus');if(pe){pe.textContent=m||'';pe.style.color=err?'#ff4d4f':'#52c41a';}}
 function friendlyErr(e){const m=((e&&e.message)||'').toString();
   if(m.indexOf('404')>=0||m.indexOf('relation')>=0||m.indexOf('does not exist')>=0)return '云端账号表未初始化：请先在 Supabase 控制台 → SQL Editor 执行建表脚本 supabase_login.sql，再重试';
@@ -998,7 +1092,7 @@ function switchLoginTab(t){
 }
 function toggleReg(){const b=document.getElementById('regBox');if(!b)return;const show=b.style.display!=='block';b.style.display=show?'block':'none';if(show)switchLoginTab('email');}
 function showLogin(){document.getElementById('loginOverlay').style.display='flex';document.querySelector('.app').style.display='none';const pc=document.getElementById('phoneCodeBtn');if(pc)pc.style.display=IS_PHONE?'block':'none';}
-function hideLogin(){document.getElementById('loginOverlay').style.display='none';document.querySelector('.app').style.display='block';closePhoneCode();const sb=document.getElementById('sessionBar');if(sb)sb.style.display='inline-flex';const em=document.getElementById('sbEmail');if(em)em.textContent=SESSION.nickname||'我的工作台';const ad=document.getElementById('btnAdmin');if(ad)ad.style.display=SESSION.role==='admin'?'inline-flex':'none';const pf=document.getElementById('btnProfile');if(pf)pf.style.display=SESSION.email?'inline-flex':'none';}
+function hideLogin(){document.getElementById('loginOverlay').style.display='none';document.querySelector('.app').style.display='block';closePhoneCode();const sb=document.getElementById('sessionBar');if(sb)sb.style.display='inline-flex';const em=document.getElementById('sbEmail');if(em)em.textContent=SESSION.nickname||'我的工作台';const ad=document.getElementById('btnAdmin');if(ad)ad.style.display=SESSION.role==='admin'?'inline-flex':'none';const pf=document.getElementById('btnProfile');if(pf)pf.style.display=SESSION.email?'inline-flex':'none';const ofr=document.getElementById('ownerFilterRow');if(ofr)ofr.style.display=SESSION.role==='admin'?'flex':'none';if(SESSION.role==='admin')loadOwnerOptions();}
 function openPhoneCode(){const m=document.getElementById('phoneCodeModal');if(m){m.classList.add('show');const i=document.getElementById('lgCode');if(i){i.value='';setLgStatus('');i.focus();}}}
 function closePhoneCode(){const m=document.getElementById('phoneCodeModal');if(m)m.classList.remove('show');}
 async function loginEmail(){
@@ -1118,7 +1212,7 @@ async function adminCreate(){
   const h=await sha256(pw+salt);
   try{await sbInsert('accounts',{email,role,pw_hash:h,salt,created_by:SESSION.email});
     document.getElementById('naEmail').value='';document.getElementById('naPw').value='';
-    adminListAccounts();alert('已创建：'+email);
+    adminListAccounts();alert('已创建：'+email);loadOwnerOptions();
   }catch(e){alert('创建失败（可能邮箱已存在）：'+e.message);}
 }
 function adminPwPrompt(email){const pw=prompt('为 '+email+' 设置新密码：');if(!pw)return;adminSetPw(email,pw);}
