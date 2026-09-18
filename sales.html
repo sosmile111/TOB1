@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="CRGRZFy3kGAXBy3GKtp6vh">
+<head data-page-node-id="HilGUQAxizzuksdIA4NXkY">
+<meta charset="UTF-8" data-page-node-id="5gAwKqCbevFgQuJlvqomyC" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" data-page-node-id="hsNDxPO341mociWEnesHTM" />
+<title>销售工作台 · 保函 / 团险 / 车险</title>
+<style>
+  :root{
+    --bg:#f5f7fa; --panel:#ffffff; --ink:#1f2937; --sub:#6b7280; --line:#e5e7eb;
+    --brand:#2563eb; --brand2:#0ea5e9; --green:#10b981; --amber:#f59e0b; --red:#ef4444;
+    --slate:#64748b; --chip:#eef2ff; --shadow:0 1px 3px rgba(15,23,42,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  #app{display:flex;min-height:100vh}
+  /* 侧边导航 */
+  .sidebar{width:188px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+  .brand{padding:16px 14px 10px;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+  .brand .dot{width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,var(--brand),var(--brand2))}
+  .brand small{display:block;font-weight:400;color:var(--sub);font-size:11px;margin-top:2px}
+  .nav{padding:6px 8px;display:flex;flex-direction:column;gap:2px;flex:1}
+  .nav a{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;color:var(--sub);text-decoration:none;font-weight:500}
+  .nav a .ic{width:18px;height:18px;flex:none}
+  .nav a.active{background:var(--chip);color:var(--brand);font-weight:600}
+  .nav a:hover{background:#f1f5f9}
+  .nav .foot{margin-top:auto;padding:10px 11px;color:var(--sub);font-size:11px;border-top:1px solid var(--line)}
+  /* 主区 */
+  main{flex:1;min-width:0;display:flex;flex-direction:column}
+  header.top{padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
+  header.top h1{margin:0;font-size:18px;font-weight:700}
+  header.top p{margin:2px 0 0;color:var(--sub);font-size:12px}
+  #view{padding:16px 20px 40px;max-width:1180px;width:100%}
+  /* 卡片/栅格 */
+  .grid{display:grid;gap:12px}
+  .g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:860px){.g3,.g4{grid-template-columns:repeat(2,1fr)} .sidebar{width:64px}.sidebar .label,.brand small,.nav .foot{display:none}.brand{justify-content:center}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 10px;font-size:15px;font-weight:700}
+  .stat{display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:12px;background:#f8fafc}
+  .stat .v{font-size:22px;font-weight:800;letter-spacing:-.5px}
+  .stat .l{font-size:12px;color:var(--sub)}
+  .quick{display:flex;flex-direction:column;justify-content:center;gap:8px;color:#fff;border:none;cursor:pointer;text-align:left;min-height:92px;border-radius:14px;padding:14px}
+  .quick.blue{background:linear-gradient(135deg,var(--brand),#1d4ed8)}
+  .quick.green{background:linear-gradient(135deg,#10b981,#059669)}
+  .quick.amber{background:linear-gradient(135deg,#f59e0b,#d97706)}
+  .quick.sky{background:linear-gradient(135deg,#0ea5e9,#0284c7)}
+  .quick .t{font-weight:700;font-size:15px} .quick .s{font-size:11px;opacity:.85}
+  /* 标签 */
+  .badge{display:inline-flex;align-items:center;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600}
+  .b-bh{background:#eff6ff;color:#2563eb} .b-tx{background:#ecfdf5;color:#059669} .b-cx{background:#fff7ed;color:#ea580c}
+  .b-soe{background:#faf5ff;color:#7e22ce} .b-pri{background:#fef2f2;color:#dc2626}
+  .st{display:inline-flex;padding:1px 8px;border-radius:6px;font-size:11px;font-weight:600}
+  .st-0{background:#f1f5f9;color:#475569} .st-1{background:#eff6ff;color:#2563eb}
+  .st-2{background:#fef9c3;color:#a16207} .st-3{background:#ecfdf5;color:#059669} .st-4{background:#fef2f2;color:#dc2626}
+  /* 表单 */
+  label{display:block;font-size:12px;color:var(--sub);margin:10px 0 4px;font-weight:600}
+  input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:14px;background:#fff;color:var(--ink);font-family:inherit}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+  textarea{resize:vertical;min-height:64px}
+  .btn{border:none;border-radius:10px;padding:10px 14px;font-size:14px;font-weight:600;cursor:pointer;background:var(--brand);color:#fff}
+  .btn:hover{filter:brightness(.96)} .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn.ghost:hover{background:#f8fafc} .btn.sm{padding:6px 10px;font-size:12px} .btn.block{width:100%}
+  .row{display:flex;gap:10px;flex-wrap:wrap} .row>*{flex:1;min-width:120px}
+  /* 客户/列表 */
+  .list{display:flex;flex-direction:column;gap:10px}
+  .item{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+  .item .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .item .name{font-weight:700;font-size:15px}
+  .item .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;color:var(--sub);font-size:12px}
+  .phones{display:flex;flex-wrap:wrap;gap:6px}
+  .ph{display:inline-flex;align-items:center;gap:5px;background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:12px}
+  .ph .src{font-size:10px;color:var(--slate);background:#eef2f7;border-radius:4px;padding:0 4px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .toolbar input,.toolbar select{max-width:200px}
+  .seg{display:inline-flex;background:#eef2f7;border-radius:9px;padding:3px;gap:2px}
+  .seg button{border:none;background:transparent;padding:6px 11px;border-radius:7px;font-size:13px;font-weight:600;color:var(--slate);cursor:pointer}
+  .seg button.on{background:#fff;color:var(--brand);box-shadow:var(--shadow)}
+  .empty{text-align:center;color:var(--sub);padding:30px}
+  /* 抽屉 */
+  .mask{position:fixed;inset:0;background:rgba(15,23,42,.35);display:none;z-index:20}
+  .mask.open{display:block}
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:440px;max-width:92vw;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,.12);transform:translateX(100%);transition:transform .2s;z-index:21;display:flex;flex-direction:column}
+  .drawer.open{transform:none}
+  .drawer header{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .drawer .body{padding:14px 16px;overflow:auto;flex:1}
+  .drawer .x{border:none;background:#f1f5f9;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:16px}
+  .sub-h{font-size:12px;color:var(--sub);font-weight:700;margin:14px 0 6px;text-transform:uppercase;letter-spacing:.04em}
+  /* 报价结果 */
+  .result{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px;margin-top:12px}
+  .result .big{font-size:26px;font-weight:800;color:#047857}
+  .kv{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .kv:last-child{border-bottom:none}
+  .kv .k{color:var(--sub)} .kv .v{font-weight:600}
+  /* 车险优惠计算器 */
+  .cx-table{width:100%;border-collapse:collapse;margin-top:4px}
+  .cx-table th{font-size:12px;color:var(--sub);font-weight:700;text-align:left;padding:7px 6px;background:#f8fafc;border-bottom:1px solid var(--line)}
+  .cx-table td{padding:6px 4px;border-bottom:1px dashed var(--line);font-size:13px}
+  .cx-table td:first-child{font-weight:600;white-space:nowrap}
+  .cx-table input{padding:7px 8px;text-align:right;font-size:13px}
+  .cx-panel{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:10px 12px;margin-top:12px}
+  .cx-tag{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;margin-right:2px}
+  .cx-tag.t-a{background:#2563eb} .cx-tag.t-b{background:#8b5cf6}
+  .cx-taxrow{display:flex;align-items:center;gap:9px;margin:10px 0 2px;font-size:12px;color:var(--sub)}
+  .switch{position:relative;display:inline-block;width:38px;height:21px;flex:none}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;cursor:pointer;inset:0;background:#cbd5e1;border-radius:999px;transition:.2s}
+  .slider:before{content:"";position:absolute;height:15px;width:15px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+  .switch input:checked + .slider{background:var(--brand)}
+  .switch input:checked + .slider:before{transform:translateX(17px)}
+  /* toast */
+  #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:50}
+  .toast{background:#111827;color:#fff;padding:9px 14px;border-radius:10px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25);animation:tin .2s}
+  .toast.ok{background:#047857} .toast.err{background:#b91c1c}
+  @keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+  .muted{color:var(--sub)} .right{text-align:right} .center{text-align:center}
+  .pill{font-size:11px;padding:2px 8px;border-radius:999px;background:#eef2f7;color:var(--slate);font-weight:600}
+  .link{color:var(--brand);cursor:pointer;font-weight:600}
+  .timeline{display:flex;gap:6px;flex-wrap:wrap}
+  .timeline button{flex:1;min-width:64px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 4px;font-size:12px;font-weight:600;cursor:pointer;color:var(--sub)}
+  .timeline button.on{background:var(--chip);color:var(--brand);border-color:#c7d2fe}
+  .skip{color:var(--sub);font-size:12px;margin-top:8px;cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body data-page-node-id="n2IEa0EK4Z6LEycFve0enD">
+<div id="app" data-page-node-id="aANtN0SklDXXlw21IwCOHY">
+  <aside class="sidebar" data-page-node-id="wuk9io9owo2O3HpcKbgEK6">
+    <div class="brand" data-page-node-id="WGoeiSXzIg6r2dpN1aAI1J"><span class="dot" data-page-node-id="OVKwCUb8qJRUTCuWgzbvXi"></span><div data-page-node-id="oPYjIdt5s9jP2JWbVT6X9K">销售工作台<small data-page-node-id="YH3PUqDBs3NWtwaaOZWrja">保函 · 团险 · 车险</small></div></div>
+    <nav class="nav" id="nav" data-page-node-id="GnilSlUnRg6UKJlMEe2m0A">
+      <a href="#/home" data-r="home" data-page-node-id="deDKdFDrU5QnapqYOKYWdq"><span class="ic" data-page-node-id="7UKVEFYbZDgsL6DZIoyn6n">🏠</span><span class="label" data-page-node-id="8dvajVtJ29trizvfBYHuAW">首页</span></a>
+      <a href="#/customers" data-r="customers" data-page-node-id="sc3SB5dYZWe7ZGAjcZcBaW"><span class="ic" data-page-node-id="HQc76j1ymU4YpM8o39hDIy">👥</span><span class="label" data-page-node-id="5BAx47HahvFkAa2bYOeDgD">客户</span></a>
+      <a href="#/quote" data-r="quote" data-page-node-id="2AlCiS6b8Kaj9gnbByhUB4"><span class="ic" data-page-node-id="LgYbENxakV90sLWKWFAXCY">🧮</span><span class="label" data-page-node-id="yKwMUsLHOWQAiOKjKe8N8b">报价</span></a>
+      <a href="#/projects" data-r="projects" data-page-node-id="AWAEBI9AGAEXwjCYIVi8VA"><span class="ic" data-page-node-id="IK6pveZgS3yioYSCyGeaZC">📁</span><span class="label" data-page-node-id="4yl28e6NdNCmTDGK8mM70w">项目</span></a>
+      <a href="#/settings" data-r="settings" data-page-node-id="InrzQ1E3i0ZGablcoaCcrW"><span class="ic" data-page-node-id="D7yH8ezLStHjEQIaGyBoAM">⚙️</span><span class="label" data-page-node-id="PpirynapDGbSmbQ15s57zL">设置</span></a>
+    </nav>
+    <div class="foot" data-page-node-id="4zSaxYTQk3A3kSkc12CpiK">数据：Supabase 云端<br data-page-node-id="A9cZlsOdTfRCRkTLO2tD6G">本地兜底：localStorage</div>
+  </aside>
+  <main data-page-node-id="WvXGz9rIvv5jnzD2QC0CpO">
+    <header class="top" data-page-node-id="24ccjlAUVj2KNiclWiJ6Pb"><h1 id="pageTitle" data-page-node-id="j5NhqgDX1HgJiktD0tKlPI">首页</h1><p id="pageSub" data-page-node-id="N5OEHL43FIg7xyLWmetuFP"></p></header>
+    <section id="view" data-page-node-id="n6zAze3w7fYJ4nhFZKWELl"></section>
+  </main>
+</div>
+<div class="mask" id="mask" data-page-node-id="r0E0YUVvHeLZeqecWtT2K2"></div>
+<aside class="drawer" id="drawer" data-page-node-id="P0Ra9KSLxoyZNR08aTEQxA"><header data-page-node-id="qJHDZnXNvlUSDka9USPJaS"><b id="dwTitle" data-page-node-id="NZybDMKvfmpnJccbFyTptN">详情</b><button class="x" id="dwClose" data-page-node-id="M3p5upMGhT1YVHp7Nv6vgb">×</button></header><div class="body" id="dwBody" data-page-node-id="ldki4kreWKZuUNnC1yQJPA"></div></aside>
+<div id="toast" data-page-node-id="HLAoPy9a7AMUi6VPRjirRQ"></div>
+
+<script>
+/* ===================== 配置 ===================== */
+const SB_KEY  = "sb_publishable_aLbA-luAVpq6JvUCN7v_JA_IOsxHg7X";
+const SB_BASE = "https://ekecxzijszqemqykpmkc.supabase.co/rest/v1";
+const ADMIN   = "seeyoulook@qq.com";
+const LINES   = ["保函","团险","车险"];
+const LINE_CLASS = {"保函":"b-bh","团险":"b-tx","车险":"b-cx"};
+const STATUS = [["待跟进","st-0"],["已报价","st-1"],["进行中","st-2"],["已成交","st-3"],["已流失","st-4"]];
+const STATUS_LABEL = s => (STATUS.find(x=>x[0]===s)||STATUS[0])[0];
+const STATUS_CLS   = s => (STATUS.find(x=>x[0]===s)||STATUS[0])[1];
+
+/* 默认设置（未连云端时使用） */
+const DEFAULT_SETTINGS = {
+  guaranteeRates:{
+    bid:{label:"投标保函",minRate:.3,maxRate:1,defaultRate:.6},
+    performance:{label:"履约保函",minRate:.5,maxRate:1.5,defaultRate:1},
+    advance:{label:"预付款保函",minRate:.6,maxRate:1.8,defaultRate:1.2},
+    quality:{label:"质保保函",minRate:.4,maxRate:1.2,defaultRate:.8}
+  },
+  extraFees:[{key:"bank",name:"银行手续费",defaultAmount:500,enabled:true},
+             {key:"notary",name:"公证费",defaultAmount:200,enabled:false},
+             {key:"express",name:"快递费",defaultAmount:30,enabled:false}],
+  group:{perCapita:300}      // 团险人均年保费默认
+};
+
+/* ===================== 状态 ===================== */
+let customers=[], quotes=[], projects=[], settings=JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+let custById={};
+
+/* ===================== Supabase 封装 ===================== */
+async function sb(method, table, {select="*", filter="", body=null}={}){
+  let url = `${SB_BASE}/${table}?select=${encodeURIComponent(select)}`;
+  if(filter) url += "&" + filter;
+  const res = await fetch(url,{
+    method,
+    headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY,"Content-Type":"application/json",
+             Prefer: method==="POST"?"return=minimal":"resolution=merge-duplicates"},
+    body: body?JSON.stringify(body):undefined
+  });
+  if(!res.ok) throw new Error(`${method} ${table} -> ${res.status}`);
+  if(method==="POST"||method==="PATCH"||method==="DELETE") return null;
+  return res.json();
+}
+const LS = {
+  get(k,fb){try{const v=localStorage.getItem("sw_"+k);return v?JSON.parse(v):fb;}catch(e){return fb;}},
+  set(k,v){try{localStorage.setItem("sw_"+k,JSON.stringify(v));}catch(e){}}
+};
+
+/* 读写带本地兜底 */
+async function loadQuotes(){
+  try{ const r=await sb("GET","quotes",{filter:`email=eq.${ADMIN}`}); quotes=r.map(x=>x.payload); LS.set("quotes",quotes); }
+  catch(e){ quotes=LS.get("quotes",[]); }
+}
+async function saveQuote(q){
+  quotes.unshift(q); LS.set("quotes",quotes);
+  try{ await sb("POST","quotes",{body:{id:q.id,email:ADMIN,line:q.line,payload:q}}); }catch(e){}
+}
+async function loadProjects(){
+  try{ const r=await sb("GET","projects",{filter:`email=eq.${ADMIN}`}); projects=r.map(x=>x.payload); LS.set("projects",projects); }
+  catch(e){ projects=LS.get("projects",[]); }
+}
+async function saveProject(p){
+  const i=projects.findIndex(x=>x.id===p.id);
+  if(i>=0) projects[i]=p; else projects.unshift(p);
+  LS.set("projects",projects);
+  try{ await sb("POST","projects",{body:{id:p.id,email:ADMIN,line:p.line,customer_id:p.customerId||null,payload:p,status:p.status}}); }catch(e){}
+  router(); // 联动刷新（原为未定义的 render()，会导致保存后抛异常）
+}
+async function loadSettings(){
+  try{
+    const r=await sb("GET","app_settings",{select:"key,value",filter:`email=eq.${ADMIN}`});
+    const m={}; r.forEach(x=>m[x.key]=x.value);
+    settings=Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),m);
+    LS.set("settings",settings);
+  }catch(e){ const s=LS.get("settings",null); if(s) settings=s; }
+}
+async function saveSetting(key,val){
+  settings[key]=val; LS.set("settings",settings);
+  try{ await sb("POST","app_settings",{body:{email:ADMIN,key,value:val}}); }catch(e){}
+}
+
+/* 客户：从 Supabase customers 表读取 data 字段 */
+async function loadCustomers(){
+  try{
+    let r=await sb("GET","customers",{select:"id,data,updated_at",filter:`email=eq.${ADMIN}`});
+    // 兼容历史数据：云端大量行 email 为空（实测 802 行中仅 1 行带邮箱），
+    // 按邮箱过滤结果过少时回退为读取全量，避免客户一个都加载不出来。
+    if(!r||r.length<5){
+      const all=await sb("GET","customers",{select:"id,data,updated_at"});
+      if(all&&all.length>r.length) r=all;
+    }
+    customers = r.map(x=>({id:x.id, ...(x.data||{})})).filter(c=>c.id);
+  }catch(e){
+    customers = LS.get("customers",[]);
+    if(!customers.length) toast("客户云端拉取失败，且本地无缓存","err");
+  }
+  rebuildCustIndex();
+}
+function rebuildCustIndex(){ custById={}; customers.forEach(c=>custById[c.id]=c); }
+async function patchCustomer(c){
+  try{ await sb("PATCH","customers",{filter:`id=eq.${c.id}`,body:{data:c,updated_at:new Date().toISOString()}}); }catch(e){}
+  LS.set("customers",customers);
+}
+
+/* ===================== 工具 ===================== */
+function toast(msg,type=""){const t=document.createElement("div");t.className="toast "+type;t.textContent=msg;document.getElementById("toast").appendChild(t);setTimeout(()=>t.remove(),2600);}
+function money(n){ if(n==null||isNaN(n)) return "—"; const v=Math.round(Number(n)); return "¥"+v.toLocaleString("zh-CN"); }
+function lineBadge(l){return `<span class="badge ${LINE_CLASS[l]||''}">${l}</span>`;}
+function classifyLines(c){
+  if(Array.isArray(c.lines)&&c.lines.length) return c.lines;
+  const set=new Set();
+  (c.projects||[]).forEach(p=>{(p.need||[]).forEach(n=>{
+    if(/团(意|体)|雇主|医疗/.test(n)) set.add("团险");
+    else if(/车险|机动车|交强险/.test(n)) set.add("车险");
+    else if(/保函|担保/.test(n)) set.add("保函");
+  });});
+  if(!set.size) set.add("保函");
+  return [...set];
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
+function uid(p){return p+"_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function thisMonth(d){const n=new Date();return d&&new Date(d).getMonth()===n.getMonth()&&new Date(d).getFullYear()===n.getFullYear();}
+
+/* ===================== 路由 ===================== */
+const TITLES={home:["首页","今日概览与快捷入口"],customers:["客户","沿用保函工作台客户管理"],quote:["报价","保函 / 团险 / 车险 参数化计费"],projects:["项目","跨业务线项目与状态流转"],settings:["设置","费率卡 · 附加费 · 默认参数"]};
+function router(){
+  const r=(location.hash.replace("#/","")||"home").split("/")[0];
+  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("active",a.dataset.r===r));
+  const [t,s]=TITLES[r]||TITLES.home;
+  document.getElementById("pageTitle").textContent=t;
+  document.getElementById("pageSub").textContent=s;
+  ({home:renderHome,customers:renderCustomers,quote:renderQuote,projects:renderProjects,settings:renderSettings}[r]||renderHome)();
+}
+window.addEventListener("hashchange",router);
+
+/* ===================== 首页 ===================== */
+function renderHome(){
+  const v=document.getElementById("view");
+  const now=new Date().getHours();
+  const hi = now<6?"凌晨好":now<12?"早上好":now<14?"中午好":now<18?"下午好":"晚上好";
+  const lineStats=LINES.map(l=>{
+    const cs=customers.filter(c=>classifyLines(c).includes(l)).length;
+    const ps=projects.filter(p=>p.line===l);
+    const dealt=ps.filter(p=>p.status==="已成交").reduce((a,p)=>a+(Number(p.fee)||0),0);
+    const mq=quotes.filter(q=>q.line===l&&thisMonth(q.createdAt)).length;
+    return {l,cs,proj:ps.length,dealt,mq};
+  });
+  const expiring=projects.filter(p=>p.status!=="已成交"&&p.status!=="已流失"&&p.payload&&p.payload.dueDate&&(new Date(p.payload.dueDate)-new Date())>0&&(new Date(p.payload.dueDate)-new Date())<30*864e5).slice(0,5);
+  const recentP=projects.slice().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5);
+  const recentQ=quotes.slice().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5);
+  v.innerHTML=`
+  <div class="card" style="margin-bottom:12px"><h2 style="margin:0">${hi}，管理员 👋</h2><p class="muted" style="margin:4px 0 0">保函 / 团险 / 车险 一体化销售工作台 · 数据已同步云端</p></div>
+  <div class="grid g4" style="margin-bottom:12px">
+    <button class="quick blue" onclick="location.hash='#/quote'"><div class="t">+ 新建报价</div><div class="s">快速计算保费</div></button>
+    <button class="quick green" onclick="location.hash='#/customers'"><div class="t">+ 客户跟进</div><div class="s">${customers.length} 位客户</div></button>
+    <button class="quick amber" onclick="location.hash='#/projects'"><div class="t">+ 新建项目</div><div class="s">${projects.length} 个项目</div></button>
+    <button class="quick sky" onclick="location.hash='#/settings'"><div class="t">⚙ 费率设置</div><div class="s">调整报价参数</div></button>
+  </div>
+  <h2 style="margin:6px 0 8px;font-size:15px">业务线概览</h2>
+  <div class="grid g3" style="margin-bottom:16px">
+    ${lineStats.map(x=>`
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">${lineBadge(x.l)}<span class="muted" style="font-size:12px">本月报价 ${x.mq}</span></div>
+        <div class="grid g2">
+          <div class="stat"><span class="v">${x.cs}</span><span class="l">客户数</span></div>
+          <div class="stat"><span class="v">${x.proj}</span><span class="l">项目数</span></div>
+          <div class="stat" style="grid-column:span 2"><span class="v">${money(x.dealt)}</span><span class="l">已成交金额</span></div>
+        </div>
+      </div>`).join("")}
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h2>临期项目</h2><span class="link" onclick="location.hash='#/projects'">全部</span></div>
+      ${expiring.length?expiring.map(p=>projRow(p)).join(""):`<div class="empty">暂无临期项目</div>`}
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h2>近期报价</h2><span class="link" onclick="location.hash='#/quote'">去报价</span></div>
+      ${recentQ.length?recentQ.map(q=>`
+        <div class="kv"><span class="k">${lineBadge(q.line)} ${esc(q.payload.typeLabel||q.payload.name||"报价")}</span><span class="v">${money(q.payload.fee)}</span></div>`).join(""):`<div class="empty">暂无报价</div>`}
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h2>近期项目</h2>
+    ${recentP.length?recentP.map(p=>projRow(p)).join(""):`<div class="empty">还没有项目，去报价后保存为项目吧</div>`}
+  </div>`;
+}
+function projRow(p){
+  const c=p.customerId?custById[p.customerId]:null;
+  return `<div class="kv" style="cursor:pointer" onclick="openProject('${p.id}')">
+    <span class="k">${lineBadge(p.line)} <b style="color:var(--ink)">${esc(p.payload.name||"未命名")}</b>${c?` · ${esc(c.company||"")}`:""}</span>
+    <span class="v"><span class="st ${STATUS_CLS(p.status)}">${STATUS_LABEL(p.status)}</span> ${money(p.fee)}</span></div>`;
+}
+
+/* ===================== 客户管理（沿用现有逻辑） ===================== */
+let custFilter={kw:"",line:"全部",status:"全部"};
+let custShown=80; // 分批渲染，避免 800+ 客户一次全量渲染卡顿
+function renderCustomers(){
+  const v=document.getElementById("view");
+  const lineOpts=`<option>全部</option>`+LINES.map(l=>`<option ${custFilter.line===l?"selected":""}>${l}</option>`).join("");
+  const statOpts=`<option>全部</option>`+STATUS.map(s=>`<option ${custFilter.status===s[0]?"selected":""}>${s[0]}</option>`).join("");
+  v.innerHTML=`
+  <div class="toolbar">
+    <input id="cKw" placeholder="搜索公司 / 省份 / 甲方" value="${esc(custFilter.kw)}" oninput="custFilter.kw=this.value;renderCustomers()">
+    <select id="cLine" onchange="custFilter.line=this.value;renderCustomers()">${lineOpts}</select>
+    <select id="cSt" onchange="custFilter.status=this.value;renderCustomers()">${statOpts}</select>
+    <span class="muted" style="font-size:12px;align-self:center">共 ${customers.length} 位</span>
+  </div>
+  <div class="list" id="custList"></div>`;
+  const kw=custFilter.kw.trim();
+  const list=customers.filter(c=>{
+    const lines=classifyLines(c);
+    if(custFilter.line!=="全部"&&!lines.includes(custFilter.line)) return false;
+    if(custFilter.status!=="全部"&&(c.status||"待跟进")!==custFilter.status) return false;
+    if(kw){const hay=(c.company+" "+(c.prov||"")+" "+((c.projects||[]).map(p=>p.甲方||"").join(" "))).toLowerCase();if(!hay.includes(kw.toLowerCase()))return false;}
+    return true;
+  });
+  const el=document.getElementById("custList");
+  if(!list.length){el.innerHTML=`<div class="empty">没有匹配的客户</div>`;return;}
+  const shown=list.slice(0,custShown);
+  el.innerHTML=shown.map(c=>custCard(c)).join("")
+    + (list.length>custShown
+        ? `<button class="btn ghost block" style="margin-top:10px" onclick="custShown+=80;renderCustomers()">加载更多（剩余 ${list.length-custShown} 位）</button>`
+        : "");
+}
+function custCard(c){
+  const lines=classifyLines(c);
+  const phones=(c.phones||[]).filter(p=>p.电话&&p.电话!=="待补").slice(0,4);
+  const projCount=(c.projects||[]).length;
+  return `<div class="item" onclick="openCustomer('${c.id}')">
+    <div class="top"><span class="name">${esc(c.company||c.id)}</span>
+      <div class="meta">${lines.map(lineBadge).join("")}${c.soe?`<span class="badge b-soe">${esc(c.soe)}</span>`:""}<span class="st ${STATUS_CLS(c.status||"待跟进")}">${STATUS_LABEL(c.status||"待跟进")}</span></div>
+    </div>
+    <div class="meta">${c.prov?`📍 ${esc(c.prov)}`:""}${projCount?` · 甲方项目 ${projCount}`:""}${c.owner?` · 负责人 ${esc(c.owner)}`:""}</div>
+    <div class="phones">${phones.map(p=>`<span class="ph"><span class="src">${esc((p.来源||"").replace("中标公告·",""))}</span>${esc(p.电话)}</span>`).join("")||`<span class="muted">暂无电话</span>`}</div>
+  </div>`;
+}
+function openCustomer(id){
+  const c=custById[id]; if(!c)return;
+  const lines=classifyLines(c);
+  const phones=(c.phones||[]).filter(p=>p.电话&&p.电话!=="待补");
+  const ps=(c.projects||[]);
+  openDrawer("客户详情 · "+esc(c.company||c.id),`
+    <div class="meta" style="margin-bottom:6px">${lines.map(lineBadge).join("")} ${c.soe?`<span class="badge b-soe">${esc(c.soe)}</span>`:""} ${c.prov?`<span class="pill">${esc(c.prov)}</span>`:""}</div>
+    <div class="sub-h">联系人与电话（${phones.length}）</div>
+    <div class="phones">${phones.map(p=>`<span class="ph"><span class="src">${esc((p.来源||"").replace("中标公告·",""))}</span>${esc(p.电话)}<span class="muted">·${esc(p.类型||"")}</span></span>`).join("")||`<span class="muted">暂无</span>`}</div>
+    <div class="sub-h">甲方项目（${ps.length}）</div>
+    ${ps.length?ps.map(p=>`<div class="kv"><span class="k">${esc(p.项目||p.甲方||"")}</span><span class="v">${esc(p.类型||"")}${p.金额万?` · ${esc(p.金额万)}万`:""}</span></div>${p.链接?`<a class="link" href="${esc(p.链接)}" target="_blank" style="font-size:12px">查看公告 ↗</a>`:""}`).join(""):`<span class="muted">暂无</span>`}
+    <div class="sub-h">跟进</div>
+    <label>状态</label>
+    <select id="cStatus">${STATUS.map(s=>`<option ${ (c.status||"待跟进")===s[0]?"selected":""}>${s[0]}</option>`).join("")}</select>
+    <label>负责人</label><input id="cOwner" value="${esc(c.owner||"")}" placeholder="负责人">
+    <label>下次跟进</label><input id="cNext" type="date" value="${esc(c.nextFollow||"")}">
+    <label>备注</label><textarea id="cNote" placeholder="跟进记录">${esc(c.note||"")}</textarea>
+    <button class="btn block" style="margin-top:12px" onclick="saveCust('${c.id}')">保存跟进</button>
+    <div class="sub-h">新建项目（关联此客户）</div>
+    <button class="btn ghost block" onclick="location.hash='#/quote';setTimeout(()=>preselectCustomer('${c.id}'),200)">去报价并关联 →</button>
+  `);
+}
+function saveCust(id){
+  const c=custById[id]; if(!c)return;
+  c.status=document.getElementById("cStatus").value;
+  c.owner=document.getElementById("cOwner").value;
+  c.nextFollow=document.getElementById("cNext").value;
+  c.note=document.getElementById("cNote").value;
+  c.logs=c.logs||[]; c.logs.unshift({t:new Date().toISOString().slice(0,10),s:c.status,n:c.note});
+  patchCustomer(c);
+  toast("已保存客户跟进","ok"); closeDrawer(); renderCustomers();
+}
+/* 报价页预选客户 */
+let preCustId=null;
+function preselectCustomer(id){preCustId=id; const sel=document.getElementById("qCust"); if(sel) sel.value=id;}
+
+/* ===================== 报价 ===================== */
+let qLine="保函", qType="bid";
+function renderQuote(){
+  const v=document.getElementById("view");
+  const seg=LINES.map(l=>`<button class="${qLine===l?"on":""}" onclick="setQLine('${l}')">${l}</button>`).join("");
+  v.innerHTML=`
+  <div class="toolbar"><div class="seg">${seg}</div>
+    ${qLine==="保函"?`<div class="seg" id="qTypeSeg">${Object.entries(settings.guaranteeRates).map(([k,r])=>`<button class="${qType===k?"on":""}" onclick="setQType('${k}')">${r.label}</button>`).join("")}</div>`:""}
+  </div>
+  <div id="quoteForm"></div>`;
+  renderQuoteForm();
+}
+function setQLine(l){qLine=l;if(l==="保函")qType="bid";renderQuote();}
+function setQType(t){qType=t;renderQuoteForm();}
+function renderQuoteForm(){
+  const f=document.getElementById("quoteForm");
+  const custOpts=`<option value="">— 关联客户（可选）—</option>`+customers.map(c=>`<option value="${c.id}" ${preCustId===c.id?"selected":""}>${esc(c.company||c.id)}</option>`).join("");
+  if(qLine==="保函"){
+    const r=settings.guaranteeRates[qType];
+    f.innerHTML=`
+    <div class="card">
+      <h2>${r.label}报价</h2>
+      <div class="row"><div><label>保函金额（元）</label><input id="qAmt" type="number" placeholder="如 1000000"></div>
+        <div><label>期限方式</label><select id="qPu"><option value="month">按月</option><option value="year">按年</option></select></div></div>
+      <div class="row"><div><label>期限（月/年）</label><input id="qPv" type="number" value="12"></div>
+        <div><label>年费率（%）</label><input id="qRate" type="number" step="0.01" value="${r.defaultRate}"><span class="muted" style="font-size:11px">范围 ${r.minRate}~${r.maxRate}%</span></div></div>
+      <label>关联客户</label><select id="qCust">${custOpts}</select>
+      <div class="sub-h">附加费用</div>
+      <div id="qFees">${settings.extraFees.filter(x=>x.enabled).map(x=>`
+        <div class="kv"><span class="k">${esc(x.name)}</span><span class="v"><input style="width:120px;text-align:right" type="number" data-fee="${x.key}" data-name="${esc(x.name)}" value="${x.defaultAmount}"></span></div>`).join("")||`<span class="muted">无启用的附加费（去设置开启）</span>`}</div>
+      <button class="btn block" style="margin-top:14px" onclick="calcQuote()">立即计算</button>
+    </div>
+    <div id="qResult"></div>`;
+  }else if(qLine==="团险"){
+    f.innerHTML=`
+    <div class="card">
+      <h2>团险报价</h2>
+      <label>险种</label><select id="qGType"><option>团体意外险</option><option>雇主责任险</option><option>团体医疗险</option><option>团体重疾险</option></select>
+      <div class="row"><div><label>参保人数</label><input id="qAmt" type="number" value="20"></div>
+        <div><label>人均年保费（元）</label><input id="qPer" type="number" value="${settings.group.perCapita}"></div></div>
+      <div class="row"><div><label>保障年限</label><input id="qPv" type="number" value="1"></div>
+        <div><label>折扣率（1=无）</label><input id="qRate" type="number" step="0.01" value="1"></div></div>
+      <label>关联客户</label><select id="qCust">${custOpts}</select>
+      <button class="btn block" style="margin-top:14px" onclick="calcQuote()">立即计算</button>
+    </div>
+    <div id="qResult"></div>`;
+  }else{
+    f.innerHTML=`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">车险优惠计算器</h2><span class="pill">🧮 车险工具</span></div>
+      <label>车牌/姓名</label><input id="cxOwner" placeholder="输入车牌或客户姓名" oninput="cxUpdate()">
+      <label>关联客户（可选）</label><select id="qCust">${custOpts}</select>
+      <div class="cx-taxrow">
+        <label class="switch"><input type="checkbox" id="cxTax" checked onchange="cxUpdate()"><span class="slider"></span></label>
+        <span>优惠按含税基数（保费 ÷ 1.06）；关闭则直接 保费 × 优惠%</span>
+      </div>
+      <table class="cx-table">
+        <thead><tr><th>项目</th><th>保费(元)</th><th>方案A%</th><th>方案B%</th></tr></thead>
+        <tbody>
+          ${cxRow("交强险",true)}
+          ${cxRow("车船税",false)}
+          ${cxRow("商业险",true)}
+          ${cxRow("驾乘险",true)}
+        </tbody>
+      </table>
+      <div class="row" style="margin-top:10px">
+        <button class="btn ghost sm" onclick="cxClear('prem')">🧹 清除保费</button>
+        <button class="btn ghost sm" onclick="cxClear('a')">🗑️ 清方案A</button>
+        <button class="btn ghost sm" onclick="cxClear('b')">🧾 清方案B</button>
+      </div>
+      <div id="cxResult"></div>
+      <p class="muted" style="font-size:11px;margin:8px 0 0">优惠 = 保费 ÷ 1.06 × 优惠%（含税基数开关可关闭）；车船税不参与优惠</p>
+    </div>`;
+    cxUpdate();
+  }
+}
+function calcQuote(){
+  let payload={line:qLine}, fee=0, typeLabel="", detail=[];
+  if(qLine==="保函"){
+    const amt=+document.getElementById("qAmt").value, pu=document.getElementById("qPu").value, pv=+document.getElementById("qPv").value;
+    const rate=+document.getElementById("qRate").value;
+    if(!amt||amt<=0){toast("请输入有效保函金额","err");return;}
+    const months=pu==="year"?pv*12:pv;
+    const base=amt*(rate/100)*(months/12);
+    fee=base;
+    let extras=[];
+    document.querySelectorAll("#qFees input[data-fee]").forEach(i=>{const a=+i.value||0;if(a>0){extras.push({name:i.dataset.name,amount:a});fee+=a;}});
+    typeLabel=settings.guaranteeRates[qType].label;
+    payload={line:qLine,type:qType,typeLabel,amount:amt,periodUnit:pu,periodMonths:months,annualRate:rate,extras,fee:Math.round(fee)};
+    detail=[["保函金额",money(amt)],["期限",months+" 个月"],["年费率",rate+"%"],["基准保费",money(base)],...extras.map(e=>[e.name,money(e.amount)]),["合计保费",money(fee)]];
+  }else if(qLine==="团险"){
+    const n=+document.getElementById("qAmt").value, per=+document.getElementById("qPer").value, y=+document.getElementById("qPv").value, disc=+document.getElementById("qRate").value||1;
+    const gtype=document.getElementById("qGType").value;
+    if(!n||n<=0){toast("请输入参保人数","err");return;}
+    fee=n*per*y*disc;
+    typeLabel=gtype;
+    payload={line:qLine,type:gtype,typeLabel,count:n,perCapita:per,years:y,discount:disc,fee:Math.round(fee)};
+    detail=[["险种",gtype],["参保人数",n+" 人"],["人均年保费",money(per)],["保障年限",y+" 年"],["折扣",disc],["合计保费",money(fee)]];
+  }else{
+    return; // 车险使用「车险优惠计算器」实时计算，不走此函数
+  }
+  const cid=document.getElementById("qCust").value;
+  const q={id:uid("Q"),line:qLine,createdAt:new Date().toISOString(),customerId:cid||null,payload};
+  window.__qcache=window.__qcache||{}; window.__qcache[q.id]=q;
+  const r=document.getElementById("qResult");
+  r.innerHTML=`<div class="result"><div class="muted">${lineBadge(qLine)} ${esc(typeLabel)} · 估算保费</div>
+    <div class="big">${money(fee)}</div>
+    ${detail.map(d=>`<div class="kv"><span class="k">${d[0]}</span><span class="v">${d[1]}</span></div>`).join("")}
+    <div class="row" style="margin-top:12px">
+      <button class="btn block" onclick="saveQuoteOnly('${q.id}')">保存报价</button>
+      <button class="btn ghost block" onclick="quoteToProject('${q.id}')">存为项目 →</button>
+    </div></div>`;
+  toast("计算完成","ok");
+}
+function saveQuoteOnly(id){ const q=(window.__qcache||{})[id]; if(!q)return; saveQuote(q); toast("报价已保存","ok"); }
+function quoteToProject(id){
+  const q=(window.__qcache||{})[id]; if(!q)return;
+  const p={id:uid("P"),line:q.line,createdAt:new Date().toISOString(),customerId:q.customerId||null,
+    status:"已报价",fee:q.payload.fee,
+    payload:{name:(q.payload.typeLabel||"报价")+" "+money(q.payload.fee),quoteId:q.id,...q.payload}};
+  saveProject(p); toast("已存为项目","ok"); location.hash="#/projects";
+}
+
+/* ===== 车险优惠计算器（对齐 v193 工作台同款：优惠按不含税基数 保费÷1.06×优惠%） ===== */
+function round2(n){return Math.round((Number(n)||0)*100)/100;}
+function money2(n){return "¥"+round2(n).toFixed(2);}
+function cxRow(name,disc){
+  return `<tr>
+    <td>${name}</td>
+    <td><input type="number" class="cx-p" data-name="${name}" placeholder="0" oninput="cxUpdate()"></td>
+    ${disc?`<td><input type="number" class="cx-a" data-name="${name}" placeholder="0" oninput="cxUpdate()"></td>
+           <td><input type="number" class="cx-b" data-name="${name}" placeholder="0" oninput="cxUpdate()"></td>`
+          :`<td class="center muted">—</td><td class="center muted">—</td>`}
+  </tr>`;
+}
+function cxScheme(pcts,prem,taxOn){
+  let orig=0,disc=0;
+  const base=k=>taxOn?k/1.06:k; // 含税基数：保费÷1.06；关闭则直接用保费
+  for(const k in prem){ orig+=prem[k]; if(k!=="车船税"&&pcts[k]) disc+=base(prem[k])*pcts[k]/100; }
+  orig=round2(orig); disc=round2(disc);
+  return {orig,disc,net:round2(orig-disc)};
+}
+function cxUpdate(){
+  const prem={},pa={},pb={};
+  document.querySelectorAll(".cx-p").forEach(i=>prem[i.dataset.name]=+i.value||0);
+  document.querySelectorAll(".cx-a").forEach(i=>pa[i.dataset.name]=+i.value||0);
+  document.querySelectorAll(".cx-b").forEach(i=>pb[i.dataset.name]=+i.value||0);
+  const taxEl=document.getElementById("cxTax"); const taxOn=taxEl?taxEl.checked:true;
+  const A=cxScheme(pa,prem,taxOn), B=cxScheme(pb,prem,taxOn);
+  const ownerEl=document.getElementById("cxOwner");
+  window.__cx={prem,aPct:pa,bPct:pb,A,B,owner:ownerEl?ownerEl.value.trim():"",taxBase:taxOn};
+  const el=document.getElementById("cxResult"); if(!el)return;
+  el.innerHTML=`
+    <div class="cx-panel">
+      <div class="kv"><span class="k"><span class="cx-tag t-a">A</span> 原总保费</span><span class="v" style="color:#2563eb">${money2(A.orig)}</span></div>
+      <div class="kv"><span class="k"><span class="cx-tag t-a">A</span> 优惠金额</span><span class="v" style="color:#ef4444">- ${money2(A.disc)}</span></div>
+      <div class="kv"><span class="k"><span class="cx-tag t-a">A</span> 实收金额</span><span class="v" style="color:#059669">${money2(A.net)}</span></div>
+      <div class="kv"><span class="k"><span class="cx-tag t-b">B</span> 原总保费</span><span class="v" style="color:#2563eb">${money2(B.orig)}</span></div>
+      <div class="kv"><span class="k"><span class="cx-tag t-b">B</span> 优惠金额</span><span class="v" style="color:#ef4444">- ${money2(B.disc)}</span></div>
+      <div class="kv"><span class="k"><span class="cx-tag t-b">B</span> 实收金额</span><span class="v" style="color:#059669">${money2(B.net)}</span></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn block" onclick="cxSaveQuote()">保存报价</button>
+      <button class="btn ghost block" onclick="cxSaveProject()">存为项目 →</button>
+    </div>`;
+}
+function cxClear(what){
+  const cls={prem:".cx-p",a:".cx-a",b:".cx-b"}[what];
+  document.querySelectorAll(cls).forEach(i=>i.value="");
+  cxUpdate();
+}
+function cxQuoteObj(){
+  const c=window.__cx||{prem:{},aPct:{},bPct:{},A:{orig:0,disc:0,net:0},B:{orig:0,disc:0,net:0},owner:""};
+  const custSel=document.getElementById("qCust");
+  const useB=c.bPct&&Object.values(c.bPct).some(v=>v>0);
+  const fee=useB?c.B.net:c.A.net;
+  return {id:uid("Q"),line:"车险",createdAt:new Date().toISOString(),customerId:(custSel&&custSel.value)||null,
+    payload:{type:"车险优惠计算器",typeLabel:"车险",owner:c.owner,prem:c.prem,aPct:c.aPct,bPct:c.bPct,taxBase:c.taxBase,
+             schemeA:c.A,schemeB:c.B,fee,feeBasis:useB?"方案B实收":"方案A实收"}};
+}
+function cxSaveQuote(){
+  const q=cxQuoteObj(); window.__qcache=window.__qcache||{}; window.__qcache[q.id]=q;
+  saveQuote(q); toast("车险报价已保存","ok");
+}
+function cxSaveProject(){
+  const q=cxQuoteObj(); window.__qcache=window.__qcache||{}; window.__qcache[q.id]=q;
+  const p={id:uid("P"),line:"车险",createdAt:new Date().toISOString(),customerId:q.customerId,
+    status:"已报价",fee:q.payload.fee,
+    payload:{name:"车险报价 "+(q.payload.owner||"")+" "+money2(q.payload.fee),quoteId:q.id,...q.payload}};
+  saveProject(p); toast("已存为项目","ok"); location.hash="#/projects";
+}
+
+/* ===================== 项目 ===================== */
+let projFilter={line:"全部",status:"全部"};
+function renderProjects(){
+  const v=document.getElementById("view");
+  const lineOpts=`<option>全部</option>`+LINES.map(l=>`<option ${projFilter.line===l?"selected":""}>${l}</option>`).join("");
+  const statOpts=`<option>全部</option>`+STATUS.map(s=>`<option ${projFilter.status===s[0]?"selected":""}>${s[0]}</option>`).join("");
+  const list=projects.filter(p=>(projFilter.line==="全部"||p.line===projFilter.line)&&(projFilter.status==="全部"||p.status===projFilter.status))
+    .sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  v.innerHTML=`
+  <div class="toolbar">
+    <select onchange="projFilter.line=this.value;renderProjects()">${lineOpts}</select>
+    <select onchange="projFilter.status=this.value;renderProjects()">${statOpts}</select>
+    <button class="btn sm" onclick="openProjectEditor()">+ 新建项目</button>
+    <span class="muted" style="font-size:12px;align-self:center">共 ${projects.length} 个</span>
+  </div>
+  <div class="list">${list.length?list.map(p=>projCard(p)).join(""):`<div class="empty">暂无项目</div>`}</div>`;
+}
+function projCard(p){
+  const c=p.customerId?custById[p.customerId]:null;
+  return `<div class="item" onclick="openProject('${p.id}')">
+    <div class="top"><span class="name">${esc(p.payload.name||"未命名")}</span><span class="st ${STATUS_CLS(p.status)}">${STATUS_LABEL(p.status)}</span></div>
+    <div class="meta">${lineBadge(p.line)} ${c?`👤 ${esc(c.company||"")}`:`<span class="muted">未关联客户</span>`} · ${money(p.fee)}</div>
+    <div class="meta muted" style="font-size:11px">创建 ${esc(p.createdAt.slice(0,10))}</div>
+  </div>`;
+}
+function openProject(id){
+  const p=projects.find(x=>x.id===id); if(!p)return;
+  const c=p.customerId?custById[p.customerId]:null;
+  openDrawer("项目 · "+esc(p.payload.name||""),`
+    <div class="meta">${lineBadge(p.line)} ${c?`👤 <span class="link" onclick="openCustomer('${c.id}')">${esc(c.company||"")}</span>`:`<span class="muted">未关联客户</span>`}</div>
+    <div class="sub-h">金额</div><div style="font-size:22px;font-weight:800">${money(p.fee)}</div>
+    <div class="sub-h">状态流转</div>
+    <div class="timeline">${STATUS.map(s=>`<button class="${p.status===s[0]?"on":""}" onclick="setProjStatus('${p.id}','${s[0]}')">${s[0]}</button>`).join("")}</div>
+    <div class="sub-h">明细</div>
+    ${Object.entries(p.payload).filter(([k])=>!["name","quoteId"].includes(k)).map(([k,val])=>`<div class="kv"><span class="k">${esc(k)}</span><span class="v">${esc(typeof val==="object"?JSON.stringify(val):val)}</span></div>`).join("")}
+    <button class="btn ghost block" style="margin-top:14px" onclick="openProjectEditor('${p.id}')">编辑项目</button>
+  `);
+}
+function setProjStatus(id,st){const p=projects.find(x=>x.id===id);if(!p)return;p.status=st;saveProject(p);closeDrawer();toast("状态已更新","ok");}
+function openProjectEditor(id){
+  const p=id?projects.find(x=>x.id===id):null;
+  const custOpts=`<option value="">— 未关联 —</option>`+customers.map(c=>`<option value="${c.id}" ${p&&p.customerId===c.id?"selected":""}>${esc(c.company||c.id)}</option>`).join("");
+  const lineOpts=LINES.map(l=>`<option ${p?(p.line===l?"selected":""):(l==="保函"?"selected":"")}>${l}</option>`).join("");
+  openDrawer(id?"编辑项目":"新建项目",`
+    <label>项目名称</label><input id="pName" value="${esc(p?p.payload.name||"":"")}" placeholder="如 某集团投标保函">
+    <div class="row"><div><label>业务线</label><select id="pLine">${lineOpts}</select></div><div><label>状态</label><select id="pStatus">${STATUS.map(s=>`<option ${p?(p.status===s[0]?"selected":""):(s[0]==="已报价"?"selected":"")}>${s[0]}</option>`).join("")}</select></div></div>
+    <div class="row"><div><label>金额（元）</label><input id="pFee" type="number" value="${p?p.fee||"":""}"></div><div><label>关联客户</label><select id="pCust">${custOpts}</select></div></div>
+    <label>到期日（可选，用于临期提醒）</label><input id="pDue" type="date" value="${p&&p.payload.dueDate?p.payload.dueDate.slice(0,10):""}">
+    <label>备注</label><textarea id="pNote" placeholder="项目说明">${esc(p?p.payload.note||"":"")}</textarea>
+    <button class="btn block" style="margin-top:14px" onclick="commitProject('${id||""}')">${id?"保存修改":"创建项目"}</button>
+  `);
+}
+function commitProject(id){
+  const name=document.getElementById("pName").value.trim()||"未命名项目";
+  const line=document.getElementById("pLine").value;
+  const status=document.getElementById("pStatus").value;
+  const fee=+document.getElementById("pFee").value||0;
+  const cid=document.getElementById("pCust").value||null;
+  const due=document.getElementById("pDue").value;
+  const note=document.getElementById("pNote").value;
+  let p;
+  if(id){ p=projects.find(x=>x.id===id); p.line=line;p.status=status;p.fee=fee;p.customerId=cid;
+    p.payload={...p.payload,name, dueDate:due?due+"T00:00:00":undefined, note}; }
+  else{ p={id:uid("P"),line,customerId:cid,createdAt:new Date().toISOString(),status,fee,
+    payload:{name,dueDate:due?due+"T00:00:00":undefined,note}}; }
+  saveProject(p); closeDrawer(); toast("项目已保存","ok");
+}
+
+/* ===================== 设置 ===================== */
+function renderSettings(){
+  const v=document.getElementById("view");
+  const rateRows=Object.entries(settings.guaranteeRates).map(([k,r])=>`
+    <div class="kv"><span class="k">${r.label}</span>
+      <span class="v" style="display:flex;gap:6px;align-items:center">min<input style="width:62px" type="number" step="0.01" data-rk="${k}" data-f="minRate" value="${r.minRate}">max<input style="width:62px" type="number" step="0.01" data-rk="${k}" data-f="maxRate" value="${r.maxRate}">默认<input style="width:62px" type="number" step="0.01" data-rk="${k}" data-f="defaultRate" value="${r.defaultRate}">%</span></div>`).join("");
+  const feeRows=settings.extraFees.map((f,i)=>`
+    <div class="kv"><span class="k"><input type="checkbox" ${f.enabled?"checked":""} onchange="toggleFee(${i},this.checked)"> ${esc(f.name)}</span>
+      <span class="v"><input style="width:90px;text-align:right" type="number" value="${f.defaultAmount}" onchange="setFeeAmt(${i},this.value)"></span></div>`).join("");
+  v.innerHTML=`
+  <div class="grid g2">
+    <div class="card">
+      <h2>保函费率卡（年费率 %）</h2>${rateRows}
+      <button class="btn ghost sm" style="margin-top:10px" onclick="saveRates()">保存费率卡</button>
+    </div>
+    <div class="card">
+      <h2>附加费模板</h2>${feeRows||`<span class="muted">无</span>`}
+      <button class="btn ghost sm" style="margin-top:10px" onclick="saveFees()">保存附加费</button>
+    </div>
+    <div class="card">
+      <h2>团险默认参数</h2>
+      <label>人均年保费默认（元）</label><input id="gPer" type="number" value="${settings.group.perCapita}" onchange="settings.group.perCapita=+this.value">
+      <button class="btn ghost sm" style="margin-top:10px" onclick="saveSetting('group',settings.group);toast('已保存','ok')">保存</button>
+    </div>
+    <div class="card">
+      <h2>车险报价</h2>
+      <p class="muted" style="font-size:12px;margin:0 0 6px">车险使用「车险优惠计算器」：逐项录入保费，方案A/B 按优惠% 计算（不含税基数 保费÷1.06×优惠%，车船税不参与优惠），无需默认参数。</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h2>数据管理</h2>
+    <div class="row">
+      <button class="btn ghost" onclick="exportAll()">导出全部（JSON）</button>
+      <button class="btn ghost" onclick="reloadCloud()">重新拉取云端</button>
+      <button class="btn ghost" onclick="clearLocal()">清空本地缓存</button>
+    </div>
+    <p class="muted" style="font-size:12px;margin-top:8px">云端账号：${ADMIN} · 报价/项目/设置写入 Supabase（quotes/projects/app_settings 表），客户读取自 customers 表。若未执行建表 SQL，将自动回退到浏览器本地存储。</p>
+  </div>`;
+}
+function saveRates(){Object.entries(settings.guaranteeRates).forEach(([k,r])=>{document.querySelectorAll(`[data-rk="${k}"]`).forEach(i=>{r[i.dataset.f]=+i.value;});});saveSetting("guaranteeRates",settings.guaranteeRates);toast("费率卡已保存","ok");if(location.hash==="#/quote")renderQuote();}
+function toggleFee(i,on){settings.extraFees[i].enabled=on;saveSetting("extraFees",settings.extraFees);}
+function setFeeAmt(i,a){settings.extraFees[i].defaultAmount=+a;saveSetting("extraFees",settings.extraFees);}
+function exportAll(){const blob=new Blob([JSON.stringify({customers,quotes,projects,settings},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="销售工作台_导出.json";a.click();toast("已导出","ok");}
+function clearLocal(){["customers","quotes","projects","settings"].forEach(k=>localStorage.removeItem("sw_"+k));toast("本地缓存已清空，重新拉取中…");boot();}
+async function reloadCloud(){await boot(true);toast("云端数据已刷新","ok");}
+
+/* ===================== 抽屉 ===================== */
+function openDrawer(title,html){document.getElementById("dwTitle").textContent=title;document.getElementById("dwBody").innerHTML=html;document.getElementById("mask").classList.add("open");document.getElementById("drawer").classList.add("open");}
+function closeDrawer(){document.getElementById("mask").classList.remove("open");document.getElementById("drawer").classList.remove("open");}
+document.getElementById("dwClose").onclick=closeDrawer;
+document.getElementById("mask").onclick=closeDrawer;
+
+/* ===================== 启动 ===================== */
+async function boot(force){
+  const v=document.getElementById("view"); v.innerHTML=`<div class="empty">加载中…</div>`;
+  try{
+    await Promise.all([loadSettings(),loadCustomers(),loadQuotes(),loadProjects()]);
+    if(force) toast("已从云端重载","ok");
+  }catch(e){ toast("加载异常："+e.message,"err"); }
+  router();
+}
+boot();
+</script>
+</body>
+</html>
