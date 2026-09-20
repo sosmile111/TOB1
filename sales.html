@@ -301,14 +301,12 @@ async function saveSetting(key,val){
 /* 客户：从 Supabase customers 表读取 data 字段 */
 async function loadCustomers(){
   try{
-    let r=await sb("GET","customers",{select:"id,data,updated_at",filter:`email=eq.${ADMIN}`});
-    // 兼容历史数据：云端大量行 email 为空（实测 802 行中仅 1 行带邮箱），
-    // 按邮箱过滤结果过少时回退为读取全量，避免客户一个都加载不出来。
-    if(!r||r.length<5){
-      const all=await sb("GET","customers",{select:"id,data,updated_at"});
-      if(all&&all.length>r.length) r=all;
-    }
-    customers = r.map(x=>({id:x.id, ...(x.data||{})})).filter(c=>c.id);
+    // 安全边界：只读「归属人=当前登录者」的客户。
+    // 旧实现会在结果少于 5 条时回退为读取全量 -> 会把老版本的客户一并暴露给新版本，
+    // 且该边界只靠数据行数维持、随时可能失效。此处移除回退，改为「读不到就明说」。
+    const r=await sb("GET","customers",{select:"id,data,updated_at",filter:`email=eq.${ADMIN}`});
+    customers = (r||[]).map(x=>({id:x.id, ...(x.data||{})})).filter(c=>c.id);
+    if(!customers.length) toast("当前账号暂无归属客户（不会回退读取全量）");
   }catch(e){
     customers = LS.get("customers",[]);
     if(!customers.length) toast("客户云端拉取失败，且本地无缓存","err");
