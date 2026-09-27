@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -215,6 +215,1341 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
 .session-bar{display:inline-flex;align-items:center;gap:6px}
 .session-bar .sb-email{font-size:12px;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style id="ax-design">
+/* ============================ 1. 设计令牌 ============================ */
+:root{
+  /* 画布 / 文字 */
+  --ax-bg:#F1F5FC;
+  --ax-card:#FFFFFF;
+  --ax-ink:#16203A;
+  --ax-ink-2:#5C6884;
+  --ax-ink-3:#93A0BA;
+  --ax-line:#EDF1F9;
+
+  /* 主色与功能色 */
+  --ax-primary:#6C5CE7;
+  --ax-primary-soft:rgba(108,92,231,.10);
+  --ax-blue:#3D7BF0;
+  --ax-green:#22C55E;
+  --ax-orange:#F59E0B;
+  --ax-red:#EF4444;
+  --ax-teal:#14B8A6;
+  --ax-pink:#F76C9E;
+
+  /* 渐变 */
+  --ax-g-blue:linear-gradient(135deg,#6AA5FF 0%,#3D7BF0 100%);
+  --ax-g-indigo:linear-gradient(135deg,#8B7CF6 0%,#6C5CE7 100%);
+  --ax-g-green:linear-gradient(135deg,#5BE08E 0%,#22C55E 100%);
+  --ax-g-orange:linear-gradient(135deg,#FBC55F 0%,#F59E0B 100%);
+  --ax-g-red:linear-gradient(135deg,#FB7E8E 0%,#EF4444 100%);
+  --ax-g-teal:linear-gradient(135deg,#4DD9CE 0%,#14B8A6 100%);
+  --ax-g-pink:linear-gradient(135deg,#FCA5C4 0%,#F76C9E 100%);
+
+  /* 形状 */
+  --ax-r-lg:20px; --ax-r-md:16px; --ax-r-sm:11px; --ax-r-xs:8px;
+  --ax-shadow:0 8px 24px rgba(66,84,140,.07);
+  --ax-shadow-sm:0 3px 12px rgba(66,84,140,.05);
+  --ax-shadow-hover:0 14px 34px rgba(66,84,140,.13);
+
+  /* 覆盖存量页面常用的旧变量名（尽量让老 CSS 也跟着变色） */
+  --primary:#6C5CE7; --primary-color:#6C5CE7;
+  --accent:#3D7BF0;
+  --bg:#F1F5FC; --background:#F1F5FC;
+  --card-bg:#FFFFFF; --surface:#FFFFFF;
+  --text:#16203A; --text-color:#16203A;
+  --border-color:#EDF1F9;
+  --radius:16px; --radius-lg:20px;
+  --shadow:0 8px 24px rgba(66,84,140,.07);
+}
+
+/* ============================ 2. 画布 ============================ */
+html{ -webkit-text-size-adjust:100%; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",Inter,sans-serif !important;
+  color:var(--ax-ink);
+  background-color:#EDF3FB !important;
+  background-image:
+    radial-gradient(46% 40% at 3% 0%,  rgba(122,168,255,.26), transparent 60%),
+    radial-gradient(42% 34% at 98% 1%, rgba(150,132,255,.20), transparent 62%),
+    radial-gradient(46% 40% at 94% 100%, rgba(94,214,220,.16), transparent 62%),
+    linear-gradient(160deg,#EAF2FD 0%,#F3F6FE 46%,#EDF6FB 100%) !important;
+  background-attachment:fixed !important;
+  background-repeat:no-repeat !important;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.55;
+}
+
+/* 可选：整体色相柔化（不改结构，只做统一） */
+::selection{ background:rgba(61,123,240,.22); color:var(--ax-ink); }
+
+/* 滚动条 —— 细、圆、低存在感 */
+*::-webkit-scrollbar{ width:10px; height:10px; }
+*::-webkit-scrollbar-track{ background:transparent; }
+*::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#CFD9EC,#B9C6E0);
+  border-radius:999px; border:2.5px solid transparent; background-clip:content-box;
+}
+*::-webkit-scrollbar-thumb:hover{ background:#9FB0D0; background-clip:content-box; }
+*{ scrollbar-width:thin; scrollbar-color:#C6D2E8 transparent; }
+
+a{ color:inherit; }
+
+/* ============================ 3. 通用元素 ============================ */
+
+/* --- 标题层次 --- */
+h1{ font-size:22px; font-weight:800; letter-spacing:.2px; color:var(--ax-ink); }
+h2{ font-size:17px; font-weight:800; letter-spacing:.2px; color:var(--ax-ink); }
+h3{ font-size:15px; font-weight:750; color:var(--ax-ink); }
+h4{ font-size:13.5px; font-weight:700; color:var(--ax-ink-2); }
+
+/* --- 按钮 --- */
+button, .btn, input[type=button], input[type=submit], [class*="btn-"]{
+  font-family:inherit;
+  border-radius:var(--ax-r-sm);
+  transition:transform .14s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+}
+button:not([class*="icon"]):not([class*="close"]):hover,
+.btn:hover{ transform:translateY(-1px); }
+button:active, .btn:active{ transform:translateY(0) scale(.985); }
+button:focus-visible, .btn:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline:2px solid rgba(108,92,231,.55); outline-offset:2px;
+}
+/* 主按钮：原来的实色蓝/绿/黑，统一成品牌渐变 */
+.btn-primary, .btn.main, .primary, button.primary,
+button[type=submit].btn:not(.btn-outline):not(.ghost){
+  background:var(--ax-g-indigo) !important;
+  color:#fff !important;
+  border-color:transparent !important;
+  box-shadow:0 8px 18px rgba(108,92,231,.30) !important;
+}
+.btn-primary:hover{ box-shadow:0 12px 24px rgba(108,92,231,.38) !important; }
+/* 次按钮：白底描边 */
+.btn-outline, .btn.ghost, button.ghost{
+  background:#fff !important;
+  color:var(--ax-ink-2) !important;
+  border:1px solid var(--ax-line) !important;
+  box-shadow:var(--ax-shadow-sm) !important;
+}
+
+/* --- 表单控件 --- */
+input[type=text], input[type=password], input[type=email], input[type=number],
+input[type=search], input[type=tel], input[type=url], input[type=date], select, textarea,
+.form-control, .form-input{
+  border-radius:var(--ax-r-sm) !important;
+  border:1px solid var(--ax-line) !important;
+  background:#fff !important;
+  color:var(--ax-ink) !important;
+  font-family:inherit !important;
+  transition:border-color .16s, box-shadow .16s;
+}
+input:focus, select:focus, textarea:focus, .form-control:focus{
+  border-color:rgba(108,92,231,.55) !important;
+  box-shadow:0 0 0 3.5px rgba(108,92,231,.13) !important;
+  outline:none !important;
+}
+input::placeholder, textarea::placeholder{ color:var(--ax-ink-3) !important; }
+
+/* --- 表格 --- */
+table{ border-collapse:collapse; }
+thead th, table th{
+  font-size:11.5px !important; font-weight:650 !important;
+  color:var(--ax-ink-3) !important;
+  background:transparent !important;
+  border-bottom:1px solid var(--ax-line) !important;
+}
+td{ font-size:12.5px !important; color:var(--ax-ink-2) !important; border-bottom:1px solid var(--ax-line) !important; }
+tbody tr:hover td{ background:#FAFCFF !important; }
+tbody tr:last-child td{ border-bottom:0 !important; }
+
+/* ============================ 4. 卡片族 ============================ */
+/* 覆盖存量页面里各种卡片命名；只改外观，不改 display/position */
+.card, .panel, .pcard, .stat-card, .prod-card, .cat-card, .game-card,
+.client-card, .client-bid-card, .cloud-sheet-card, .ps-card,
+.login-box, .auth-box, .modal-card, .modal-box, .login-card, .box-card,
+[class$="-card"]:not([class*="card-"]):not(.card-icon):not(.card-hd){
+  border-radius:var(--ax-r-lg) !important;
+  background:var(--ax-card) !important;
+  box-shadow:var(--ax-shadow) !important;
+  border:1px solid rgba(237,241,249,.9) !important;
+}
+/* 卡片悬停：轻微抬起（仅对明显可点的卡） */
+.game-card:hover, .prod-card:hover, .cat-card:hover, .client-card:hover,
+.cloud-sheet-card:hover, [class$="-card"].clickable:hover{
+  box-shadow:var(--ax-shadow-hover) !important;
+  transform:translateY(-2px);
+}
+
+/* 小控件块（快速入口/工具项） */
+.quick-item, .wi, .nav-card, .gn-item, .tool-item, .entry-item{
+  border-radius:var(--ax-r-md) !important;
+  background:#FAFCFF !important;
+  border:1px solid var(--ax-line) !important;
+  transition:transform .15s, box-shadow .15s, background .15s;
+}
+.quick-item:hover, .wi:hover, .tool-item:hover, .entry-item:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--ax-shadow-sm) !important;
+  background:#fff !important;
+}
+
+/* 顶部品牌横幅（hero）—— 统一成品牌柔彩 */
+.hero-banner, .banner, .header-banner{
+  border-radius:var(--ax-r-lg) !important;
+  background:linear-gradient(135deg,#EEF3FF 0%,#F3F0FF 52%,#EAF7FF 100%) !important;
+  border:1px solid rgba(237,241,249,.9) !important;
+  box-shadow:var(--ax-shadow-sm) !important;
+}
+
+/* ============================ 5. 标签 / 徽章 ============================ */
+.pill, .tag, .badge, .chip, .level-badge, .client-tag-badge, .member-tag,
+[class$="-tag"]:not(.tag-row), [class$="-badge"]{
+  border-radius:999px !important;
+  font-weight:650 !important;
+  border:0 !important;
+}
+/* 状态色统一（按常见语义命名兜底） */
+.pill.ok, .pill.done-ok, .badge.ok, .tag.ok, .done, [class*="status-ok"]{
+  background:#E4F8EC !important; color:#16A34A !important;
+}
+.pill.wait, .pill.pending, .badge.wait, .tag.warn, .badge.normal{
+  background:#FEF3D9 !important; color:#B45309 !important;
+}
+.pill.done, .badge.info, .tag.info{
+  background:#E3EEFF !important; color:#2563EB !important;
+}
+.badge.urgent, .tag.danger, [class*="status-err"]{
+  background:#FEE9E9 !important; color:#DC2626 !important;
+}
+
+/* ============================ 6. 弹窗 / 遮罩 ============================ */
+.modal-mask, .mask, .overlay, .dialog-mask, .gm-mask, .sync-mask, [class$="-overlay"]{
+  background:rgba(22,32,58,.34) !important;
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+}
+.modal-card, .modal-box, .dialog, [class$="-modal"]:not(.modal-mask){
+  border-radius:var(--ax-r-lg) !important;
+  box-shadow:0 24px 60px rgba(30,44,90,.24) !important;
+  border:1px solid rgba(237,241,249,.9) !important;
+}
+
+/* ============================ 7. 侧栏 / 导航 ============================ */
+.sidebar, .side, aside[class], [class$="-sidebar"]{
+  border-radius:var(--ax-r-lg);
+}
+.sidebar-item, .nav-item, .side-item, .menu-item{
+  border-radius:var(--ax-r-sm) !important;
+  transition:background .16s, color .16s;
+}
+.sidebar-item:hover, .nav-item:hover, .side-item:hover{
+  background:#F5F8FD !important;
+  color:var(--ax-ink) !important;
+}
+/* 选中态：品牌渐变胶囊 */
+.sidebar-item.active, .nav-item.active, .side-item.active, .menu-item.active,
+.sidebar-item.on, .nav-item.on{
+  background:var(--ax-g-indigo) !important;
+  color:#fff !important;
+  box-shadow:0 8px 18px rgba(108,92,231,.30) !important;
+}
+.sidebar-item.active svg, .nav-item.active svg, .side-item.active svg{ opacity:1; }
+
+/* 顶栏 / 工具条 */
+.topbar, .toolbar, .toolbar-inner, .user-bar, .top{
+  border-radius:var(--ax-r-md);
+}
+
+/* 分段控件 */
+.seg, .tabs, .subtabs, .lib-tab, [class$="-tabs"]{
+  background:#F3F6FD !important;
+  border-radius:999px !important;
+  padding:3px !important;
+}
+.seg > *, .tabs > *, .subtabs > *, .lib-tab{
+  border-radius:999px !important;
+  font-weight:600;
+}
+.seg > .on, .seg > .active, .tabs > .on, .tabs > .active,
+.subtabs > .on, .subtabs > .active, .lib-tab.on, .lib-tab.active{
+  background:#fff !important;
+  color:var(--ax-blue) !important;
+  box-shadow:var(--ax-shadow-sm) !important;
+}
+
+/* 表格里的进度条 / 通用进度条 */
+.track, [class$="-track"]{
+  background:#EDF1F9 !important;
+  border-radius:999px !important;
+  overflow:hidden;
+}
+.fill, [class$="-fill"], .progress > i{
+  border-radius:999px !important;
+  background:var(--ax-g-indigo);
+}
+
+/* ============================ 8. 新增：数据看板模块 ============================ */
+/* 该模块由 aurora-dash.js 生成，命名统一 ax- 前缀，不与页面样式冲突 */
+
+.ax-dash{ display:flex; flex-direction:column; gap:14px; margin:0 0 16px; }
+
+/* 问候顶栏 */
+.ax-hero{
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  border-radius:var(--ax-r-lg); padding:18px 22px;
+  background:linear-gradient(135deg,#EFEFFF 0%,#EAF1FF 48%,#E9F7FF 100%);
+  border:1px solid rgba(255,255,255,.9);
+  box-shadow:var(--ax-shadow-sm);
+  position:relative; overflow:hidden;
+}
+.ax-hero::after{
+  content:""; position:absolute; right:-40px; top:-60px; width:190px; height:190px;
+  border-radius:50%; background:radial-gradient(circle,rgba(140,124,246,.22),transparent 70%);
+}
+.ax-hero .ax-hi{ font-size:20px; font-weight:800; letter-spacing:.2px; position:relative; z-index:1; }
+.ax-hero .ax-sub{ font-size:12.5px; color:var(--ax-ink-2); margin-top:4px; position:relative; z-index:1; }
+.ax-hero .ax-hero-r{ margin-left:auto; display:flex; gap:9px; align-items:center; position:relative; z-index:1; flex-wrap:wrap; }
+.ax-hero .ax-chip{
+  display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:650;
+  background:rgba(255,255,255,.86); border:1px solid rgba(255,255,255,.9);
+  padding:7px 13px; border-radius:999px; color:var(--ax-ink-2); box-shadow:var(--ax-shadow-sm);
+}
+.ax-hero .ax-chip b{ color:var(--ax-primary); }
+
+/* KPI 卡 */
+.ax-kpis{ display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); gap:13px; }
+.ax-kpi{
+  border-radius:var(--ax-r-md); padding:15px 16px 14px; position:relative; overflow:hidden;
+  border:1px solid rgba(255,255,255,.85); box-shadow:var(--ax-shadow-sm);
+  background:linear-gradient(150deg,#EEF5FF,#E3EDFF);
+}
+.ax-kpi::after{
+  content:""; position:absolute; right:-26px; top:-30px; width:86px; height:86px;
+  border-radius:50%; background:rgba(255,255,255,.42);
+}
+.ax-kpi .ax-ic{
+  position:absolute; right:13px; top:13px; width:28px; height:28px; border-radius:9px;
+  display:grid; place-items:center; z-index:2;
+  box-shadow:0 3px 0 rgba(20,34,70,.10), 0 7px 14px rgba(30,44,90,.14);
+}
+.ax-kpi .ax-ic svg{ position:relative; z-index:1; }
+.ax-kpi .ax-v{ font-size:23px; font-weight:800; letter-spacing:.2px; position:relative; z-index:1; line-height:1.25; }
+.ax-kpi .ax-v em{ font-size:12px; font-style:normal; font-weight:700; color:var(--ax-ink-2); margin-left:2px; }
+.ax-kpi .ax-l{ font-size:11.5px; color:var(--ax-ink-2); margin-top:3px; position:relative; z-index:1; }
+.ax-kpi .ax-t{ font-size:11px; font-weight:700; margin-top:7px; position:relative; z-index:1; }
+.ax-kpi .ax-t.up{ color:#16A34A; } .ax-kpi .ax-t.down{ color:#DC2626; } .ax-kpi .ax-t.flat{ color:var(--ax-ink-3); }
+.ax-kpi.c-blue{ background:linear-gradient(150deg,#EEF5FF,#E3EDFF); }
+.ax-kpi.c-indigo{ background:linear-gradient(150deg,#F2EFFF,#E9E4FF); }
+.ax-kpi.c-green{ background:linear-gradient(150deg,#EDFBF2,#E1F8EA); }
+.ax-kpi.c-orange{ background:linear-gradient(150deg,#FFF7E9,#FDEED4); }
+.ax-kpi.c-pink{ background:linear-gradient(150deg,#FFF0F5,#FDE6EE); }
+.ax-kpi.c-teal{ background:linear-gradient(150deg,#EAFBF9,#DDF6F3); }
+
+/* 分栏容器 */
+.ax-cols{ display:grid; gap:14px; }
+.ax-cols.c2{ grid-template-columns:1fr 1fr; }
+.ax-cols.c21{ grid-template-columns:1.6fr 1fr; }
+.ax-cols.c12{ grid-template-columns:1fr 1.6fr; }
+.ax-cols.c1{ grid-template-columns:1fr; }
+.ax-note{ padding:14px 18px; }
+.ax-note .ax-empty{ padding:0; text-align:left; }
+
+/* 通用卡 */
+.ax-card{
+  background:#fff; border-radius:var(--ax-r-lg); box-shadow:var(--ax-shadow);
+  padding:16px 18px; border:1px solid rgba(237,241,249,.9);
+}
+.ax-h{ display:flex; align-items:center; gap:9px; margin-bottom:11px; }
+.ax-h .ax-bar{ width:3px; height:14px; border-radius:2px; background:var(--ax-g-blue); flex:0 0 3px; }
+.ax-h h3{ margin:0; font-size:14.5px; font-weight:800; letter-spacing:.2px; }
+.ax-h .ax-r{ margin-left:auto; font-size:11.5px; color:var(--ax-ink-3); display:flex; align-items:center; gap:6px; }
+
+/* 工具宫格（复用页面既有功能，点击即触发原有处理）。
+   用 auto-fill 而非 auto-fit：工具项少时保持图标尺寸，不被拉伸变形。 */
+.ax-tools{ display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); gap:11px; }
+.ax-tool{
+  background:#FAFCFF; border:1px solid var(--ax-line); border-radius:var(--ax-r-md);
+  padding:13px 8px 11px; text-align:center; cursor:pointer;
+  transition:transform .15s, box-shadow .15s, background .15s, border-color .15s;
+}
+.ax-tool:hover{ transform:translateY(-2px); box-shadow:var(--ax-shadow-sm); background:#fff; border-color:#E2E9F6; }
+.ax-tool .ax-ti{
+  width:40px; height:40px; border-radius:13px; margin:0 auto 9px;
+  display:grid; place-items:center; color:#fff; position:relative;
+  box-shadow:0 3px 0 rgba(20,34,70,.13), 0 7px 14px rgba(30,44,90,.15);
+}
+.ax-tool .ax-ti::before{
+  content:""; position:absolute; inset:0; border-radius:13px;
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,0) 56%);
+}
+.ax-tool .ax-ti svg{ position:relative; z-index:1; }
+.ax-tool .ax-tn{ font-size:11.5px; color:var(--ax-ink-2); line-height:1.35; }
+.ax-ti.gb{ background:var(--ax-g-blue); } .ax-ti.gi{ background:var(--ax-g-indigo); }
+.ax-ti.gg{ background:var(--ax-g-green); } .ax-ti.go{ background:var(--ax-g-orange); }
+.ax-ti.gr{ background:var(--ax-g-red); } .ax-ti.gt{ background:var(--ax-g-teal); }
+.ax-ti.gp{ background:var(--ax-g-pink); }
+
+/* 条形排行 */
+.ax-bars{ display:flex; flex-direction:column; gap:13px; }
+.ax-bar-row .ax-bh{ display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:6px; color:var(--ax-ink-2); }
+.ax-bar-row .ax-bh b{ color:var(--ax-ink); font-weight:750; }
+.ax-bar-track{ height:8px; border-radius:999px; background:#EDF1F9; overflow:hidden; }
+.ax-bar-fill{ height:100%; border-radius:999px; background:var(--ax-g-indigo); transition:width .5s ease; }
+
+/* 环形图 */
+.ax-donut{ display:flex; align-items:center; gap:20px; }
+.ax-donut-legend{ display:flex; flex-direction:column; gap:11px; font-size:12.5px; flex:1; }
+.ax-donut-legend .it{ display:flex; align-items:center; gap:8px; color:var(--ax-ink-2); }
+.ax-donut-legend .it i{ width:9px; height:9px; border-radius:3px; flex:0 0 9px; }
+.ax-donut-legend .it b{ margin-left:auto; color:var(--ax-ink); }
+
+/* 折线/面积图 */
+.ax-chart{ width:100%; display:block; overflow:visible; }
+.ax-legend{ display:flex; flex-wrap:wrap; gap:14px; margin-top:10px; font-size:12px; color:var(--ax-ink-2); }
+.ax-legend i{ width:8px; height:8px; border-radius:3px; display:inline-block; margin-right:6px; }
+
+/* 任务/进度卡 */
+.ax-tasks{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; }
+.ax-tk{ background:#FAFCFF; border:1px solid var(--ax-line); border-radius:var(--ax-r-md); padding:13px 14px; }
+.ax-tk .ax-tkn{ display:flex; align-items:center; gap:7px; font-size:13px; font-weight:700; min-width:0; }
+.ax-tk .ax-tkn span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ax-tk .ax-bg{ flex:0 0 auto; font-size:10px; font-weight:800; padding:2px 7px; border-radius:6px; font-style:normal; }
+.ax-bg.urgent{ background:#FEE9E9; color:#DC2626; }
+.ax-bg.normal{ background:#E4F8EC; color:#16A34A; }
+.ax-tk .ax-pct{ font-size:13px; font-weight:800; margin-top:10px; }
+.ax-tk .ax-trk{ height:7px; border-radius:999px; background:#EDF1F9; margin-top:6px; overflow:hidden; }
+.ax-tk .ax-fl{ height:100%; border-radius:999px; background:var(--ax-g-indigo); }
+.ax-tk .ax-who{ font-size:11px; color:var(--ax-ink-3); margin-top:7px; display:flex; justify-content:space-between; }
+
+/* 空状态 */
+.ax-empty{ text-align:center; padding:18px 10px; color:var(--ax-ink-3); font-size:12.5px; }
+
+/* 收起/展开 */
+.ax-fold{ cursor:pointer; user-select:none; }
+.ax-fold .ax-arrow{ transition:transform .2s; display:inline-block; }
+.ax-fold.collapsed .ax-arrow{ transform:rotate(-90deg); }
+.ax-collapsible.hidden{ display:none; }
+
+/* ============================ 9. 响应式 ============================ */
+@media (max-width:1180px){
+  .ax-cols.c2, .ax-cols.c21, .ax-cols.c12{ grid-template-columns:1fr; }
+}
+@media (max-width:760px){
+  .ax-hero{ padding:16px 16px; }
+  .ax-hero .ax-hi{ font-size:18px; }
+  .ax-hero .ax-hero-r{ margin-left:0; width:100%; }
+  .ax-kpis{ grid-template-columns:repeat(2,1fr); }
+  .ax-tools{ grid-template-columns:repeat(3,1fr); }
+}
+
+/* ============================ 10. 打印 / 降级 ============================ */
+@media print{ .ax-dash{ display:none; } }
+</style>
+<style id="ax-adapt">
+/* ============================================================================
+   Aurora UI · 各页面适配层（v1，2026-09-24）
+   只改视觉（颜色/圆角/阴影/间距/字重），不改 display / position / 结构 / 交互
+   每段以真实页面里存在的 class / id 为目标
+   ========================================================================== */
+
+/* ======================= 登录页：整屏实色 → 透出新画布 ======================= */
+/* 这些页面把登录层做成 position:fixed + inset:0 的实色渐变，会完全盖住新背景。
+   统一改成透明（保留定位与层级），下面的 Aurora 画布即可透出来；登录卡本身是白卡，
+   对比度不受影响。 */
+#loginOverlay, #login, #loginBox, #authOverlay, #authModal,
+.login-overlay, .login-screen, .login-mask, .login-mask-box,
+[id$="loginOverlay"], [class$="login-overlay"]{
+  background:transparent !important;
+}
+/* 登录卡：新设计语言 */
+.login-card, .auth-card, #loginOverlay .card{
+  border-radius:var(--ax-r-lg) !important;
+  background:rgba(255,255,255,.94) !important;
+  box-shadow:0 26px 70px rgba(30,44,90,.24), 0 1px 0 rgba(255,255,255,.9) inset !important;
+  border:1px solid rgba(255,255,255,.9) !important;
+  backdrop-filter:blur(14px) saturate(160%);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+}
+.login-title, .auth-title{ font-weight:800 !important; font-size:21px !important; letter-spacing:.3px; color:var(--ax-ink) !important; }
+.login-tabs, .auth-tabs{ background:#F3F6FD !important; border-radius:999px !important; padding:3px !important; display:flex !important; gap:4px !important; }
+.login-tab, .auth-tab{
+  border-radius:999px !important; font-weight:650 !important;
+  background:transparent !important; border:0 !important;
+  color:var(--ax-ink-3) !important; flex:1;
+}
+/* 只有 .active / .on 才是选中态（注意：别用 [onclick*="Login"] 这类松散属性选择器，
+   它会把 switchLoginTab(...) 一起匹配掉，导致两个 tab 都变成实心） */
+.login-tab.active, .login-tab.on,
+.login-tabs .active, .login-tabs .on,
+.auth-tab.active, .auth-tab.on{
+  background:#fff !important; color:var(--ax-primary) !important;
+  box-shadow:var(--ax-shadow-sm) !important;
+}
+.login-btn, .auth-btn{
+  background:var(--ax-g-indigo) !important; color:#fff !important; border:0 !important;
+  border-radius:var(--ax-r-sm) !important; font-weight:700 !important;
+  box-shadow:0 10px 22px rgba(108,92,231,.32) !important;
+}
+.login-link, .auth-link{ color:var(--ax-blue) !important; font-weight:600 !important; cursor:pointer; }
+.login-field, .auth-field{
+  background:#fff !important; border:1px solid var(--ax-line) !important;
+  border-radius:var(--ax-r-sm) !important;
+}
+.login-field label, .auth-field label{
+  color:var(--ax-ink-2) !important; font-size:12px !important; font-weight:650 !important;
+}
+.login-title, .auth-title{ font-weight:800 !important; font-size:20px !important; letter-spacing:.3px; color:var(--ax-ink) !important; }
+.login-sub, .login-hint, .login-divider{ color:var(--ax-ink-3) !important; }
+.login-status{ font-weight:600 !important; }
+
+/* ======================= 保函 TOB1 ======================= */
+/* 客户卡片 */
+.client-card{
+  border-radius:var(--ax-r-lg) !important;
+  border:1px solid rgba(237,241,249,.9) !important;
+  box-shadow:var(--ax-shadow) !important;
+  transition:transform .15s, box-shadow .15s;
+}
+.client-card:hover{ transform:translateY(-2px); box-shadow:var(--ax-shadow-hover) !important; }
+.client-summary{ background:linear-gradient(135deg,#EEF3FF,#F4F1FF) !important; border-radius:var(--ax-r-md) !important; }
+.client-name{ font-weight:750 !important; color:var(--ax-ink) !important; }
+.client-status{ border-radius:999px !important; font-weight:650 !important; padding:2px 9px !important; }
+.client-chip{ border-radius:999px !important; background:#F3F6FD !important; border:1px solid var(--ax-line) !important; }
+.client-tag-mini, .client-tag-badge{ border-radius:999px !important; font-weight:650 !important; }
+.client-icon-btn{
+  border-radius:var(--ax-r-sm) !important; background:#fff !important;
+  border:1px solid var(--ax-line) !important; box-shadow:var(--ax-shadow-sm) !important;
+  transition:transform .14s, box-shadow .14s;
+}
+.client-icon-btn:hover{ transform:translateY(-1px); box-shadow:0 8px 18px rgba(66,84,140,.14) !important; }
+/* 客户状态统计条（页面自带的真实 KPI 条） */
+.cs-item{
+  border-radius:var(--ax-r-md) !important;
+  background:#fff !important; border:1px solid var(--ax-line) !important;
+  box-shadow:var(--ax-shadow-sm) !important;
+  transition:transform .15s, box-shadow .15s;
+}
+.cs-item:hover{ transform:translateY(-2px); box-shadow:var(--ax-shadow) !important; }
+.cs-num{ font-weight:800 !important; font-size:22px !important; letter-spacing:.2px; }
+/* 等级徽章 */
+.level-badge, .lv-dot{ border-radius:999px !important; }
+/* 筛选行 */
+.filter-row{ border-radius:var(--ax-r-sm) !important; }
+/* 弹窗表单 */
+.modal-form{ border-radius:var(--ax-r-md) !important; }
+.modal-card, .login-card{
+  border-radius:var(--ax-r-lg) !important;
+  box-shadow:0 26px 64px rgba(30,44,90,.26) !important;
+  border:1px solid rgba(237,241,249,.9) !important;
+}
+.login-field{ border-radius:var(--ax-r-sm) !important; border:1px solid var(--ax-line) !important; background:#fff !important; }
+.login-divider{ color:var(--ax-ink-3) !important; }
+.ps-card{ border-radius:var(--ax-r-md) !important; background:#FAFCFF !important; border:1px solid var(--ax-line) !important; }
+.ph-item, .gt-item{ border-radius:var(--ax-r-sm) !important; }
+.client-bid-card{
+  border-radius:var(--ax-r-md) !important; background:#FAFCFF !important;
+  border:1px solid var(--ax-line) !important;
+  transition:transform .15s, box-shadow .15s;
+}
+.client-bid-card:hover{ transform:translateY(-2px); box-shadow:var(--ax-shadow-sm) !important; }
+
+/* ======================= 销售工作台 ======================= */
+.sidebar{ border-radius:var(--ax-r-lg) !important; box-shadow:var(--ax-shadow) !important; background:#fff !important; }
+.brand{ border-bottom:1px solid var(--ax-line) !important; }
+.quick{ border-radius:var(--ax-r-md) !important; background:#FAFCFF !important; border:1px solid var(--ax-line) !important; }
+.quick:hover{ background:#fff !important; box-shadow:var(--ax-shadow-sm) !important; }
+.stat{ border-radius:var(--ax-r-md) !important; background:linear-gradient(150deg,#F2EFFF,#E9E4FF) !important; border:1px solid rgba(255,255,255,.85) !important; }
+.stat .v{ font-weight:800 !important; color:var(--ax-ink) !important; }
+.cx-tag{ border-radius:999px !important; font-weight:650 !important; }
+.cx-table th{ font-size:11.5px !important; color:var(--ax-ink-3) !important; }
+.cx-table td{ font-size:12.5px !important; color:var(--ax-ink-2) !important; border-bottom:1px solid var(--ax-line) !important; }
+.cx-table tr:hover td{ background:#FAFCFF !important; }
+.drawer{ border-radius:var(--ax-r-lg) 0 0 var(--ax-r-lg) !important; box-shadow:0 24px 60px rgba(30,44,90,.24) !important; }
+.timeline{ border-left-color:var(--ax-line) !important; }
+.seg{ background:#F3F6FD !important; border-radius:999px !important; }
+.seg .on{ background:#fff !important; color:var(--ax-blue) !important; border-radius:999px !important; box-shadow:var(--ax-shadow-sm) !important; }
+.kv{ border-bottom:1px dashed var(--ax-line) !important; }
+.slider{ accent-color:var(--ax-primary); }
+.switch{ accent-color:var(--ax-primary); }
+
+/* ======================= 非车险产品目录 ======================= */
+.title-bar{ border-radius:var(--ax-r-md) !important; background:rgba(255,255,255,.9) !important; border:1px solid var(--ax-line) !important; }
+.toolbar{ border-radius:var(--ax-r-md) !important; background:#fff !important; border:1px solid var(--ax-line) !important; box-shadow:var(--ax-shadow-sm) !important; }
+.cat-card{
+  border-radius:var(--ax-r-lg) !important; background:#fff !important;
+  border:1px solid rgba(237,241,249,.9) !important; box-shadow:var(--ax-shadow) !important;
+  transition:transform .16s, box-shadow .16s;
+}
+.cat-card:hover{ transform:translateY(-3px); box-shadow:var(--ax-shadow-hover) !important; }
+.cat-count{ border-radius:999px !important; background:var(--ax-primary-soft) !important; color:var(--ax-primary) !important; font-weight:700 !important; }
+.cat-hd{ color:var(--ax-ink) !important; font-weight:750 !important; }
+.prod-card{
+  border-radius:var(--ax-r-lg) !important; background:#fff !important;
+  border:1px solid rgba(237,241,249,.9) !important; box-shadow:var(--ax-shadow) !important;
+  transition:transform .16s, box-shadow .16s;
+}
+.prod-card:hover{ transform:translateY(-2px); box-shadow:var(--ax-shadow-hover) !important; }
+.prod-img{ border-radius:var(--ax-r-md) !important; }
+.prod-body{ color:var(--ax-ink-2) !important; }
+.name-row{ color:var(--ax-ink) !important; font-weight:700 !important; }
+.insure-row{ border-radius:var(--ax-r-sm) !important; background:#FAFCFF !important; border:1px solid var(--ax-line) !important; }
+.fee-row, .fee-sw, .fee2, .fee3{ border-radius:var(--ax-r-sm) !important; }
+.imgbox{ border-radius:var(--ax-r-md) !important; border:1px solid var(--ax-line) !important; }
+.imgbox-mask{ border-radius:var(--ax-r-md) !important; background:rgba(22,32,58,.36) !important; }
+.qr-cell, .qr-text{ border-radius:var(--ax-r-sm) !important; }
+.emo{ filter:saturate(1.05); }
+
+/* ======================= 非车险后台 ======================= */
+.side{ border-radius:var(--ax-r-lg) !important; background:#fff !important; box-shadow:var(--ax-shadow) !important; }
+.topbar{ border-radius:var(--ax-r-md) !important; background:#fff !important; border:1px solid var(--ax-line) !important; box-shadow:var(--ax-shadow-sm) !important; }
+.pcard{
+  border-radius:var(--ax-r-lg) !important; background:#fff !important;
+  border:1px solid rgba(237,241,249,.9) !important; box-shadow:var(--ax-shadow) !important;
+}
+.pcard:hover{ box-shadow:var(--ax-shadow-hover) !important; }
+.login-box{
+  border-radius:var(--ax-r-lg) !important; background:#fff !important;
+  box-shadow:0 26px 64px rgba(30,44,90,.20) !important; border:1px solid rgba(237,241,249,.9) !important;
+}
+.modal-box{ border-radius:var(--ax-r-lg) !important; box-shadow:0 26px 64px rgba(30,44,90,.26) !important; }
+.prow{ border-radius:var(--ax-r-sm) !important; border-bottom:1px solid var(--ax-line) !important; }
+.insure-block{ border-radius:var(--ax-r-md) !important; background:#FAFCFF !important; border:1px solid var(--ax-line) !important; }
+.btn.primary{ background:var(--ax-g-indigo) !important; color:#fff !important; border:0 !important; box-shadow:0 8px 18px rgba(108,92,231,.28) !important; }
+.m-status{ border-radius:999px !important; font-weight:650 !important; }
+.dirty{ color:var(--ax-orange) !important; }
+
+/* ======================= 个人工作台 ======================= */
+.sidebar{ border-radius:var(--ax-r-lg) !important; background:#fff !important; box-shadow:var(--ax-shadow) !important; }
+.sidebar-item{ border-radius:var(--ax-r-sm) !important; }
+.sidebar-item.active{ background:var(--ax-g-indigo) !important; color:#fff !important; box-shadow:0 8px 18px rgba(108,92,231,.30) !important; }
+.quick-item{
+  border-radius:var(--ax-r-md) !important; background:#FAFCFF !important;
+  border:1px solid var(--ax-line) !important;
+  transition:transform .15s, box-shadow .15s, background .15s;
+}
+.quick-item:hover{ transform:translateY(-2px); box-shadow:var(--ax-shadow-sm) !important; background:#fff !important; }
+.ss-item{ border-radius:var(--ax-r-md) !important; background:linear-gradient(150deg,#EEF5FF,#E3EDFF) !important; border:1px solid rgba(255,255,255,.85) !important; }
+.ss-num{ font-weight:800 !important; }
+.stat-card{ border-radius:var(--ax-r-md) !important; background:#fff !important; border:1px solid var(--ax-line) !important; box-shadow:var(--ax-shadow-sm) !important; }
+.list-item{ border-radius:var(--ax-r-md) !important; background:#fff !important; border:1px solid var(--ax-line) !important; }
+.list-item:hover{ box-shadow:var(--ax-shadow-sm) !important; }
+.hero-banner{ border-radius:var(--ax-r-lg) !important; background:linear-gradient(135deg,#EEF3FF,#F5F1FF 52%,#EAF7FF) !important; border:1px solid rgba(237,241,249,.9) !important; box-shadow:var(--ax-shadow-sm) !important; }
+.pill, .badge, .tag{ border-radius:999px !important; font-weight:650 !important; }
+.cloud-sheet-card{ border-radius:var(--ax-r-lg) !important; background:#fff !important; box-shadow:var(--ax-shadow) !important; }
+.client-row1, .dm-row{ border-radius:var(--ax-r-sm) !important; }
+.td-cal-cell, .td-month-cell{ border-radius:var(--ax-r-xs) !important; }
+.td-cal-cell.today, .today{ background:var(--ax-primary-soft) !important; color:var(--ax-primary) !important; }
+
+/* ======================= 学习平台（登录 / 主应用 / 家长端） ======================= */
+.container{ }
+.logo-icon{ border-radius:var(--ax-r-md) !important; background:var(--ax-g-indigo) !important; color:#fff !important; box-shadow:0 10px 22px rgba(108,92,231,.30) !important; }
+.logo-title{ font-weight:800 !important; color:var(--ax-ink) !important; letter-spacing:.2px; }
+.logo-sub{ color:var(--ax-ink-3) !important; }
+.form-group{ border-radius:var(--ax-r-sm) !important; }
+.alert{ border-radius:var(--ax-r-sm) !important; font-size:12.5px !important; }
+.alert-error{ background:#FEE9E9 !important; color:#DC2626 !important; border:1px solid #FBD5D5 !important; }
+.alert-success{ background:#E4F8EC !important; color:#16A34A !important; border:1px solid #C8F2D9 !important; }
+.sync-panel, .sync-head{ border-radius:var(--ax-r-md) !important; }
+.sync-mask{ background:rgba(22,32,58,.34) !important; backdrop-filter:blur(2px); }
+.grade-row{ border-radius:var(--ax-r-sm) !important; }
+/* 主应用 */
+.layout{ background:transparent !important; }
+.nav-item{ border-radius:var(--ax-r-sm) !important; }
+.nav-item.active, .nav-item.on{ background:var(--ax-g-indigo) !important; color:#fff !important; box-shadow:0 8px 18px rgba(108,92,231,.30) !important; }
+.hero-banner{ border-radius:var(--ax-r-lg) !important; background:linear-gradient(135deg,#EEF3FF,#F5F1FF 52%,#EAF7FF) !important; }
+.subtabs{ background:#F3F6FD !important; border-radius:999px !important; }
+.subtabs > *{ border-radius:999px !important; }
+.subtabs > .active, .subtabs > .on{ background:#fff !important; color:var(--ax-blue) !important; box-shadow:var(--ax-shadow-sm) !important; }
+.eng-lib-item, .lib-word{ border-radius:var(--ax-r-sm) !important; background:#fff !important; border:1px solid var(--ax-line) !important; }
+.eng-lib-item:hover{ box-shadow:var(--ax-shadow-sm) !important; }
+.eng-lib-tab{ border-radius:999px !important; }
+.plan-card, .step-card{ border-radius:var(--ax-r-md) !important; background:#fff !important; border:1px solid var(--ax-line) !important; box-shadow:var(--ax-shadow-sm) !important; }
+.month-cal{ border-radius:var(--ax-r-lg) !important; background:#fff !important; box-shadow:var(--ax-shadow) !important; }
+.mc-cell{ border-radius:var(--ax-r-xs) !important; }
+.mc-cell.done{ background:#E4F8EC !important; color:#16A34A !important; }
+.quiz-item, .checklist-item, .practice-row, .error-card, .sentence-card, .char-card{
+  border-radius:var(--ax-r-md) !important; background:#fff !important; border:1px solid var(--ax-line) !important;
+}
+.progress-ring circle{ }
+.mood-card{ border-radius:var(--ax-r-md) !important; }
+.wish-item, .ko-item{ border-radius:var(--ax-r-md) !important; background:#FAFCFF !important; border:1px solid var(--ax-line) !important; }
+/* 家长 / 管理端 */
+.page-header{ border-radius:var(--ax-r-md) !important; background:#fff !important; border:1px solid var(--ax-line) !important; }
+.stats-grid{ }
+.stat-card .value{ font-weight:800 !important; color:var(--ax-ink) !important; }
+.stat-card .label{ color:var(--ax-ink-3) !important; }
+.panel{ border-radius:var(--ax-r-lg) !important; background:#fff !important; border:1px solid rgba(237,241,249,.9) !important; box-shadow:var(--ax-shadow) !important; }
+.family-card, .student-card{ border-radius:var(--ax-r-md) !important; background:#FAFCFF !important; border:1px solid var(--ax-line) !important; }
+.member-tag{ border-radius:999px !important; font-weight:650 !important; }
+.user-list-table th{ background:#F8FAFD !important; }
+.user-bar{ border-radius:var(--ax-r-md) !important; background:#fff !important; border:1px solid var(--ax-line) !important; }
+.btn-logout{ border-radius:var(--ax-r-sm) !important; }
+.form-row{ border-radius:var(--ax-r-sm) !important; }
+.icon{ border-radius:12px !important; }
+
+/* ======================= 游戏＋英语 ======================= */
+.game-card{
+  border-radius:var(--ax-r-lg) !important; background:#fff !important;
+  border:1px solid rgba(237,241,249,.9) !important; box-shadow:var(--ax-shadow) !important;
+  transition:transform .16s, box-shadow .16s;
+}
+.game-card:hover{ transform:translateY(-3px); box-shadow:var(--ax-shadow-hover) !important; }
+.plan-step{ border-radius:var(--ax-r-md) !important; background:#fff !important; border:1px solid var(--ax-line) !important; }
+.plan-step.active, .plan-step.on{ background:var(--ax-g-indigo) !important; color:#fff !important; box-shadow:0 8px 18px rgba(108,92,231,.28) !important; }
+/* ⚠️ .tab 是极通用的类名：游戏页里是「标签」，理财页里却是「整页 section」。
+   不限定作用域会把理财的整块内容刷成实心渐变（踩过一次）。用 data-ax 锁定到游戏页。 */
+[data-ax="game"] .tab{ border-radius:999px !important; }
+[data-ax="game"] .tab.active, [data-ax="game"] .tab.on{ background:var(--ax-g-indigo) !important; color:#fff !important; box-shadow:0 6px 16px rgba(108,92,231,.28) !important; }
+.auth-box{
+  border-radius:var(--ax-r-lg) !important; background:#fff !important;
+  box-shadow:0 26px 64px rgba(30,44,90,.22) !important; border:1px solid rgba(237,241,249,.9) !important;
+}
+.admin-table th{ background:#F8FAFD !important; }
+.deck-btn, .lib-tab{ border-radius:999px !important; }
+.lib-tab.active, .lib-tab.on{ background:var(--ax-g-indigo) !important; color:#fff !important; }
+.lib-word{ border-radius:var(--ax-r-sm) !important; }
+.chip{ border-radius:999px !important; font-weight:650 !important; }
+.game-card .btn, .deck-row .btn{ border-radius:var(--ax-r-sm) !important; }
+.gm-mask{ background:rgba(22,32,58,.36) !important; backdrop-filter:blur(2px); }
+.eng-stats{ border-radius:var(--ax-r-md) !important; background:#FAFCFF !important; border:1px solid var(--ax-line) !important; }
+.user-bar{ border-radius:var(--ax-r-md) !important; background:#fff !important; border:1px solid var(--ax-line) !important; }
+.clue-text, .riddle-a, .bomb-log{ border-radius:var(--ax-r-sm) !important; }
+.spy-p, .grammar-lesson, .grammar-block{ border-radius:var(--ax-r-md) !important; }
+
+/* ======================= 智能入口路由页 ======================= */
+.links .card, .links a.card{
+  border-radius:var(--ax-r-lg) !important; background:#fff !important;
+  border:1px solid rgba(237,241,249,.9) !important; box-shadow:var(--ax-shadow) !important;
+  transition:transform .16s, box-shadow .16s;
+}
+.links .card:hover{ transform:translateY(-3px); box-shadow:var(--ax-shadow-hover) !important; }
+
+/* ======================= 占位页 ======================= */
+.ax-placeholder{ max-width:880px; margin:0 auto; padding:24px 16px 48px; }
+
+/* ======================= AI 智能外呼（升级工作台） ======================= */
+/* 本页的 header / .nav / .wrap / button.btn 都是「通用类名」，其它页也在用且语义不同
+   （例如销售页 .nav 是侧栏、工作台有 14 个 button.btn）→ 一律用 data-ax 锁定本页。 */
+/* 原顶栏是一整条实色 primary 色带；改成与其它页一致的浅色磨砂顶栏 + 胶囊标签 */
+[data-ax="ai_call"] header{
+  background:rgba(255,255,255,.92) !important;
+  color:var(--ax-ink) !important;
+  border-bottom:1px solid var(--ax-line) !important;
+  box-shadow:0 4px 18px rgba(66,84,140,.06) !important;
+  backdrop-filter:blur(10px) saturate(160%);
+  -webkit-backdrop-filter:blur(10px) saturate(160%);
+}
+[data-ax="ai_call"] header h1{ color:var(--ax-ink) !important; font-weight:800 !important; letter-spacing:.2px; }
+[data-ax="ai_call"] header .sub{ color:var(--ax-ink-3) !important; opacity:1 !important; }
+[data-ax="ai_call"] header .logo{
+  border-radius:var(--ax-r-sm) !important;
+  background:var(--ax-g-indigo) !important;
+  box-shadow:0 8px 18px rgba(108,92,231,.30) !important;
+}
+[data-ax="ai_call"] .nav{
+  gap:6px !important;
+  background:#F3F6FD !important;
+  border:1px solid var(--ax-line) !important;
+  border-radius:999px !important;
+  padding:4px !important;
+}
+[data-ax="ai_call"] .nav button{
+  color:var(--ax-ink-2) !important;
+  border-radius:999px !important;
+  padding:7px 15px !important;
+  font-weight:650 !important;
+  opacity:1 !important;
+  transition:background .15s, color .15s, box-shadow .15s;
+}
+[data-ax="ai_call"] .nav button:hover{ background:#fff !important; color:var(--ax-blue) !important; }
+[data-ax="ai_call"] .nav button.active{
+  background:var(--ax-g-indigo) !important;
+  color:#fff !important;
+  box-shadow:0 8px 18px rgba(108,92,231,.30) !important;
+}
+[data-ax="ai_call"] .wrap{ padding-top:20px !important; }
+[data-ax="ai_call"] .card h2{
+  border-bottom:1px solid var(--ax-line) !important;
+  font-weight:750 !important;
+  color:var(--ax-ink) !important;
+}
+[data-ax="ai_call"] .stat{
+  border-radius:var(--ax-r-md) !important;
+  background:linear-gradient(150deg,#F2EFFF,#E9E4FF) !important;
+  border:1px solid rgba(255,255,255,.85) !important;
+}
+[data-ax="ai_call"] .stat .v{ color:var(--ax-ink) !important; font-weight:800 !important; }
+[data-ax="ai_call"] .stat .k{ color:var(--ax-ink-3) !important; }
+[data-ax="ai_call"] button.btn{
+  border-radius:var(--ax-r-sm) !important;
+  background:var(--ax-g-indigo) !important;
+  font-weight:650 !important;
+  box-shadow:0 8px 18px rgba(108,92,231,.26) !important;
+}
+[data-ax="ai_call"] button.btn:hover{ filter:brightness(1.05); }
+[data-ax="ai_call"] button.btn.ghost{
+  background:#fff !important;
+  color:var(--ax-blue) !important;
+  border:1px solid var(--ax-line) !important;
+  box-shadow:var(--ax-shadow-sm) !important;
+}
+[data-ax="ai_call"] button.btn.danger{ background:var(--ax-g-red) !important; }
+[data-ax="ai_call"] button.btn.warn{ background:var(--ax-g-orange) !important; }
+[data-ax="ai_call"] .badge{ border-radius:999px !important; font-weight:650 !important; }
+[data-ax="ai_call"] .kv{ border-bottom:1px dashed var(--ax-line) !important; }
+[data-ax="ai_call"] .note{
+  border-radius:var(--ax-r-sm) !important;
+  background:#EEF5FF !important;
+  border:1px solid #DCE8FF !important;
+  color:#27509B !important;
+  font-size:12px !important;
+  line-height:1.65 !important;
+}
+[data-ax="ai_call"] .note b{ color:#1B3E7F !important; }
+[data-ax="ai_call"] .toggle input{ accent-color:var(--ax-primary); }
+[data-ax="ai_call"] .muted, [data-ax="ai_call"] .empty{ color:var(--ax-ink-3) !important; }
+[data-ax="ai_call"] .chat .line, [data-ax="ai_call"] .msg{ border-radius:var(--ax-r-sm) !important; }
+
+/* ======================= 智投理财助手 ======================= */
+/* 同样原因：.logo/.up/.page-title/.btn-primary 在别页也有（工作台有 15 个 .page-title、
+   3 个 .up；learn 有 .logo）→ 全部锁定 data-ax="invest_app"。 */
+[data-ax="invest_app"] .topbar{
+  background:rgba(255,255,255,.92) !important;
+  border-bottom:1px solid var(--ax-line) !important;
+  box-shadow:0 4px 18px rgba(66,84,140,.06) !important;
+}
+[data-ax="invest_app"] .logo{ font-weight:800 !important; color:var(--ax-ink) !important; }
+[data-ax="invest_app"] .logo-icon{
+  border-radius:var(--ax-r-sm) !important;
+  background:var(--ax-g-indigo) !important;
+  color:#fff !important;
+  box-shadow:0 8px 18px rgba(108,92,231,.28) !important;
+}
+[data-ax="invest_app"] .top-status{ color:var(--ax-ink-3) !important; }
+[data-ax="invest_app"] .nav-btn{ border-radius:999px !important; font-weight:600 !important; color:var(--ax-ink-2) !important; }
+[data-ax="invest_app"] .nav-btn:hover{ background:#F3F6FD !important; color:var(--ax-blue) !important; }
+[data-ax="invest_app"] .nav-btn.active{
+  background:var(--ax-g-indigo) !important;
+  color:#fff !important;
+  font-weight:650 !important;
+  box-shadow:0 8px 18px rgba(108,92,231,.28) !important;
+}
+[data-ax="invest_app"] .page-title{ color:var(--ax-ink) !important; font-weight:800 !important; letter-spacing:.2px; }
+[data-ax="invest_app"] .page-sub{ color:var(--ax-ink-3) !important; }
+[data-ax="invest_app"] .mkt-card{
+  border-radius:var(--ax-r-lg) !important;
+  background:#fff !important;
+  border:1px solid rgba(237,241,249,.9) !important;
+  box-shadow:var(--ax-shadow-sm) !important;
+  transition:transform .16s, box-shadow .16s;
+}
+[data-ax="invest_app"] .mkt-card:hover{ transform:translateY(-2px); box-shadow:var(--ax-shadow) !important; }
+[data-ax="invest_app"] .mkt-card .m-name{ color:var(--ax-ink-2) !important; font-weight:600 !important; }
+[data-ax="invest_app"] .mkt-card .m-name .tag{ border-radius:999px !important; background:#F3F6FD !important; color:var(--ax-ink-3) !important; }
+[data-ax="invest_app"] .mkt-card .m-price{ color:var(--ax-ink) !important; font-weight:800 !important; }
+[data-ax="invest_app"] .mkt-card .m-time{ color:var(--ax-ink-3) !important; }
+/* 涨跌色：沿用 A 股习惯 —— 涨红跌绿（原页已是红涨绿跌，这里只统一到 Aurora 色板） */
+[data-ax="invest_app"] .up{ color:var(--ax-red) !important; }
+[data-ax="invest_app"] .down{ color:var(--ax-green) !important; }
+[data-ax="invest_app"] .flat{ color:var(--ax-ink-2) !important; }
+[data-ax="invest_app"] .rc{
+  border-radius:var(--ax-r-md) !important;
+  background:linear-gradient(150deg,#F5F8FF,#EDF3FF) !important;
+  border:1px solid var(--ax-line) !important;
+}
+[data-ax="invest_app"] .rc .r-label{ color:var(--ax-ink-3) !important; }
+[data-ax="invest_app"] .rc .r-value{ color:var(--ax-ink) !important; font-weight:800 !important; }
+[data-ax="invest_app"] .rc .r-note{ color:var(--ax-ink-3) !important; }
+[data-ax="invest_app"] .sub-tabs{ gap:6px !important; }
+[data-ax="invest_app"] .sub-tab{
+  border-radius:999px !important;
+  border:1px solid var(--ax-line) !important;
+  background:#fff !important;
+  color:var(--ax-ink-2) !important;
+  font-weight:600 !important;
+}
+[data-ax="invest_app"] .sub-tab:hover{ border-color:var(--ax-primary) !important; color:var(--ax-primary) !important; }
+[data-ax="invest_app"] .sub-tab.active{
+  background:var(--ax-g-indigo) !important;
+  border-color:transparent !important;
+  color:#fff !important;
+  box-shadow:0 8px 18px rgba(108,92,231,.28) !important;
+}
+[data-ax="invest_app"] .quiz-q{ border-radius:var(--ax-r-md) !important; }
+[data-ax="invest_app"] .q-opt{
+  border-radius:var(--ax-r-sm) !important;
+  border:1px solid var(--ax-line) !important;
+}
+[data-ax="invest_app"] .q-opt:hover{ border-color:var(--ax-primary) !important; background:var(--ax-primary-soft) !important; }
+[data-ax="invest_app"] .q-opt.selected{ border-color:var(--ax-primary) !important; background:var(--ax-primary-soft) !important; }
+[data-ax="invest_app"] .chip{
+  border:1px solid var(--ax-line) !important;
+  background:#fff !important;
+  color:var(--ax-ink-2) !important;
+  font-weight:600 !important;
+}
+[data-ax="invest_app"] .chip:hover{ border-color:var(--ax-primary) !important; color:var(--ax-primary) !important; background:var(--ax-primary-soft) !important; }
+[data-ax="invest_app"] .btn{ border-radius:var(--ax-r-sm) !important; font-weight:650 !important; }
+[data-ax="invest_app"] .btn-primary{
+  background:var(--ax-g-indigo) !important;
+  border:0 !important;
+  box-shadow:0 8px 18px rgba(108,92,231,.26) !important;
+}
+[data-ax="invest_app"] .btn-primary:hover{ filter:brightness(1.05); box-shadow:0 10px 22px rgba(108,92,231,.32) !important; }
+[data-ax="invest_app"] .btn-ghost{
+  background:#F3F6FD !important;
+  border:1px solid var(--ax-line) !important;
+  color:var(--ax-ink-2) !important;
+}
+[data-ax="invest_app"] .btn-ghost:hover{ background:#fff !important; box-shadow:var(--ax-shadow-sm) !important; }
+[data-ax="invest_app"] .table-wrap{ border-radius:var(--ax-r-md) !important; border:1px solid var(--ax-line) !important; }
+[data-ax="invest_app"] .search-bar input{ border-radius:var(--ax-r-sm) !important; }
+[data-ax="invest_app"] .notice{ border-radius:var(--ax-r-md) !important; }
+[data-ax="invest_app"] .notice-info{ background:var(--ax-primary-soft) !important; color:#4A3FC4 !important; }
+[data-ax="invest_app"] .notice-warn{ background:#FEF7E8 !important; color:#B77C1A !important; }
+[data-ax="invest_app"] .notice-err{ background:#FDECEC !important; color:#C0392B !important; }
+[data-ax="invest_app"] .form-grid input, [data-ax="invest_app"] .form-grid select{ border-radius:var(--ax-r-sm) !important; }
+[data-ax="invest_app"] .chart-box svg{ max-width:100%; }
+</style>
+<script id="ax-config">window.__AX={"project":"保函工作台","greet":"保函业务中台 · 今日概览","heroChips":[{"t":"业务线","b":"履约 / 预付款 / 投标"}],"kpis":[{"label":"客户总数","textOf":"#csAll","icon":"users","color":"blue"},{"label":"已成交","textOf":"#csDeal","icon":"check","color":"green"},{"label":"已报价","textOf":"#csQuote","icon":"doc","color":"indigo"},{"label":"待跟进","textOf":"#csTodo","icon":"clock","color":"orange"}],"insight":{"title":"客户标签分布","barsFrom":[{"n":"已成交","textOf":"#csDeal","c":"var(--ax-g-green)"},{"n":"已报价","textOf":"#csQuote","c":"var(--ax-g-indigo)"},{"n":"待跟进","textOf":"#csTodo","c":"var(--ax-g-orange)"},{"n":"有电话","textOf":"#csPhone","c":"var(--ax-g-teal)"}]}};(function(){try{document.documentElement.setAttribute("data-ax","baohan");}catch(e){}})();</script>
+<script id="ax-dash-src">
+/* ============================================================================
+   Aurora 概览看板 · aurora-dash.js
+   —— 在每个项目的首页区顶部新增一块「概览看板」：问候 + KPI + 常用功能 + 洞察
+   —— 零删减：常用功能宫格复用页面既有元素与其点击处理，不复制逻辑
+   —— 零依赖：原生 DOM + 内联 SVG，无外部库
+   —— 配置来源：window.__AX（由注入器按项目写入）
+   ========================================================================== */
+(function () {
+  'use strict';
+  var CFG = window.__AX || {};
+  if (CFG.dash === false) return;
+
+  /* ------------------------------ 工具函数 ------------------------------ */
+  function el(tag, cls, html) {
+    var d = document.createElement(tag);
+    if (cls) d.className = cls;
+    if (html != null) d.innerHTML = html;
+    return d;
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function num(n) {
+    if (typeof n !== 'number' || !isFinite(n)) return String(n == null ? '—' : n);
+    return n.toLocaleString('zh-CN');
+  }
+  function seen(key) {
+    try { return localStorage.getItem('ax_dash_' + key) === '1'; } catch (e) { return false; }
+  }
+  function remember(key) {
+    try { localStorage.setItem('ax_dash_' + key, '1'); } catch (e) {}
+  }
+
+  /* ------------------------------ 图标库（内联 SVG） ------------------------------ */
+  var I = {
+    money: '<path d="M12 2v20"/><path d="M17 6.5c0-2-2.2-3-5-3s-4.6 1-4.6 2.8c0 4.2 9.6 2 9.6 6.4 0 2-2.2 3.1-5 3.1s-5-1.1-5-3.1"/>',
+    doc: '<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+    users: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 11h5M18.5 8.5v5"/>',
+    chart: '<path d="M4 19V5m0 14h16"/><path d="M8 16v-5M12 16V7M16 16v-6"/>',
+    check: '<path d="M5 4h14v16H5z"/><path d="m8.5 12 2.2 2.2L16 9"/>',
+    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    bell: '<path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.5 20a2 2 0 0 0 3 0"/>',
+    star: '<path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/>',
+    book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 5.5v15"/><path d="M8 7.5h8M8 11h6"/>',
+    game: '<rect x="3" y="7" width="18" height="11" rx="5"/><path d="M8 11.5v3M6.5 13h3M15.5 12h.01M17.5 14h.01"/>',
+    cart: '<circle cx="9" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/><path d="M3 4h2l2.4 10.4h10.2L20 7H6"/>',
+    bolt: '<path d="M13 2 4.5 13H11l-1 9L19.5 11H13z"/>',
+    shield: '<path d="M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6z"/><path d="m9 12 2 2 4-4"/>',
+    robot: '<rect x="4" y="8" width="16" height="11" rx="4"/><path d="M12 4v4"/><circle cx="9" cy="13" r="1.2"/><circle cx="15" cy="13" r="1.2"/>',
+    spider: '<circle cx="12" cy="12" r="3.2"/><path d="M12 8.8V4M12 15.2V20M8.8 12H4M15.2 12H20M9.5 9.5 6 6M14.5 9.5 18 6M9.5 14.5 6 18M14.5 14.5 18 18"/>',
+    target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    down: '<path d="M12 5v14M5 12h14"/>',
+    up: '<path d="M12 19V5M5 12h14"/>'
+  };
+  function svg(name) {
+    return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" ' +
+      'stroke-linecap="round" stroke-linejoin="round">' + (I[name] || I.star) + '</svg>';
+  }
+  function svgInk(name, size) {
+    return '<svg width="' + (size || 16) + '" height="' + (size || 16) + '" viewBox="0 0 24 24" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">' + (I[name] || I.star) + '</svg>';
+  }
+
+  /* ------------------------------ 数据解析 ------------------------------ */
+  // 支持：value 直填 / textOf 读页面既有统计元素 / domCount 计数 / lsLen 本地存储长度 / sumTextOf 求和
+  // 原则：宁可少一张卡，也不显示假数字 —— 解析不到就返回 {n:null}，卡片自动隐藏
+  function toNum(txt) {
+    var t = String(txt == null ? '' : txt).replace(/,/g, '').replace(/[^\d.\-]/g, '');
+    var f = parseFloat(t);
+    return isFinite(f) ? f : null;
+  }
+  function resolve(k) {
+    try {
+      if (k.textOf) {
+        var e = document.querySelector(k.textOf);
+        if (!e) return { n: null, real: false };
+        var t = (e.textContent || '').trim();
+        if (!t || t === '--' || t === '—') return { n: null, real: false };
+        var n0 = toNum(t);
+        if (n0 === null) return { n: null, real: false };
+        // 保留原始写法（如 ¥1,200），比 toLocaleString 更贴近页面口径
+        return { n: n0, real: true, raw: t };
+      }
+      if (k.sumTextOf) {
+        var sum = 0, hit = false;
+        document.querySelectorAll(k.sumTextOf).forEach(function (e) {
+          var f = toNum(e.textContent);
+          if (f !== null) { sum += f; hit = true; }
+        });
+        return hit ? { n: sum, real: true } : { n: null, real: false };
+      }
+      if (k.domCount) {
+        var c = document.querySelectorAll(k.domCount).length;
+        return { n: c, real: true };
+      }
+      if (k.lsLen) {
+        var raw = localStorage.getItem(k.lsLen);
+        if (!raw) return { n: null, real: false };
+        var v = JSON.parse(raw);
+        var len = Array.isArray(v) ? v.length : Object.keys(v || {}).length;
+        return { n: len, real: true };
+      }
+      if (typeof k.value === 'number' || typeof k.value === 'string') return { n: k.value, real: true };
+      return { n: null, real: false };
+    } catch (e) { return { n: null, real: false }; }
+  }
+
+  /* ------------------------------ 迷你图表 ------------------------------ */
+  function areaChart(points, color, w, h) {
+    w = w || 300; h = h || 96;
+    var max = Math.max.apply(null, points), min = Math.min.apply(null, points);
+    var span = (max - min) || 1, pad = 8;
+    var step = (w - pad * 2) / (points.length - 1 || 1);
+    var pts = points.map(function (v, i) {
+      return [pad + i * step, h - pad - (v - min) / span * (h - pad * 2)];
+    });
+    var line = pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
+    var area = line + ' L' + pts[pts.length - 1][0].toFixed(1) + ' ' + (h - pad) + ' L' + pts[0][0].toFixed(1) + ' ' + (h - pad) + ' Z';
+    var id = 'axg' + Math.random().toString(36).slice(2, 7);
+    return '<svg class="ax-chart" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
+      '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="' + color + '" stop-opacity=".26"/>' +
+      '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/></linearGradient></defs>' +
+      '<path d="' + area + '" fill="url(#' + id + ')"/>' +
+      '<path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+      pts.map(function (p) { return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="2.6" fill="#fff" stroke="' + color + '" stroke-width="1.8"/>'; }).join('') +
+      '</svg>';
+  }
+  function donut(items, size) {
+    size = size || 132;
+    var r = size / 2 - 13, cx = size / 2, cy = size / 2, C = 2 * Math.PI * r;
+    var total = items.reduce(function (a, b) { return a + b.v; }, 0) || 1;
+    var off = 0, segs = '';
+    items.forEach(function (it) {
+      var frac = it.v / total;
+      segs += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + it.c +
+        '" stroke-width="15" stroke-linecap="round" stroke-dasharray="' + (frac * C - 3).toFixed(2) + ' ' + C.toFixed(2) +
+        '" stroke-dashoffset="' + (-off * C + C * 0.25).toFixed(2) + '"/>';
+      off += frac;
+    });
+    var pct = items[0] ? Math.round(items[0].v / total * 1000) / 10 : 0;
+    return '<div class="ax-donut"><svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="#EDF1F9" stroke-width="15"/>' + segs +
+      '<text x="' + cx + '" y="' + (cy - 1) + '" text-anchor="middle" font-size="19" font-weight="800" fill="#16203A">' + pct + '%</text>' +
+      '<text x="' + cx + '" y="' + (cy + 15) + '" text-anchor="middle" font-size="10.5" fill="#93A0BA">' + esc(items[0] ? items[0].n : '') + '</text>' +
+      '</svg><div class="ax-donut-legend">' + items.map(function (it) {
+        return '<div class="it"><i style="background:' + it.c + '"></i>' + esc(it.n) + '<b>' + it.v + '</b></div>';
+      }).join('') + '</div></div>';
+  }
+
+  /* ------------------------------ 定位主内容容器 ------------------------------ */
+  // 绝不能挂到登录遮罩 / 弹窗遮罩里 —— 那些是 position:fixed 覆盖层
+  var SKIP = /overlay|mask|modal|login|auth|dialog|drawer|toast|dropdown|popup|shade/i;
+  function isOverlayish(n) {
+    try {
+      if (!n || n.nodeType !== 1) return true;
+      var idc = (n.id || '') + ' ' + (typeof n.className === 'string' ? n.className : '');
+      return SKIP.test(idc);
+    } catch (e) { return true; }
+  }
+  /* 不能当宿主的元素：iframe/object/embed 塞不进子节点；script/style 同理 */
+  var NOHOST = /^(IFRAME|OBJECT|EMBED|SCRIPT|STYLE|LINK|META|TEMPLATE|BR|HR|IMG|INPUT|TEXTAREA|SELECT)$/;
+  function usableHost(n) {
+    if (!n || n === document.body || n === document.documentElement) return false;
+    if (NOHOST.test(n.tagName)) return false;
+    if (isOverlayish(n)) return false;
+    return true;
+  }
+
+  function findHost() {
+    var cands = ['.main', 'main', '#main', '.content', '#content', '.container',
+      '.app', '#app', '.app-main', '.layout', '.wrap', '.page', '#page'];
+    for (var i = 0; i < cands.length; i++) {
+      var n = document.querySelector(cands[i]);
+      if (usableHost(n) && n.offsetHeight > 120) return n;
+    }
+    // 兜底 1：body 下「够大」且不是遮罩/不能装子节点的直接子元素
+    var kids = document.body.children, best = null, first = null;
+    for (var j = 0; j < kids.length; j++) {
+      var k = kids[j];
+      if (!usableHost(k)) continue;
+      if (k.id === 'ax-dash-root') continue;
+      if (!first) first = k;
+      if (!best && k.offsetHeight > 240) best = k;
+    }
+    if (best) return best;
+    if (first) return first;      // 兜底 2：没有"够大"的，就用第一个可用的子元素
+    return document.body;
+  }
+
+  /* ------------------------------ 自动发现"常用功能" ------------------------------ */
+  function discoverTools() {
+    var out = [], used = {};
+    /* 先按「确定的导航类名」取；取不够再用通用兜底扫可点元素。
+       CFG.tools 可由页面配置追加优先选择器（该页专用，不影响其它页）。 */
+    var sels = (CFG.tools || []).concat(['.sidebar-item', '.nav-item', '.side-item', '.menu-item', '.quick-item', '.wi', '.tool-item',
+      '.lib-tab', '.subtab', '.admin-tab', '.subtabs > *', '.tab', '.seg > *', 'nav a', '.toolbar button']);
+    function push(n) {
+      if (!n || (n.closest && n.closest('#ax-dash-root'))) return;
+      if (n.closest && n.closest('.modal-mask,.gm-mask,.sync-mask,[class$="-overlay"]')) return;
+      var txt = (n.textContent || '').replace(/\s+/g, ' ').trim();
+      if (!txt || txt.length > 12) return;
+      if (/^[\d\s.·\-—+%()（）]+$/.test(txt)) return;      // 纯数字/符号跳过
+      if (used[txt]) return;
+      used[txt] = 1;
+      out.push({ node: n, label: txt });
+    }
+    for (var i = 0; i < sels.length && out.length < 8; i++) {
+      var nodes = document.querySelectorAll(sels[i]);
+      for (var j = 0; j < nodes.length && out.length < 8; j++) push(nodes[j]);
+    }
+    if (out.length < 4) {
+      /* 兜底：可见的按钮 / 链接 / 带 onclick 的短文本元素 */
+      var gen = document.querySelectorAll('button, a, [role="button"], [onclick]');
+      for (var k = 0; k < gen.length && out.length < 8; k++) {
+        var e = gen[k];
+        if (e.type === 'hidden') continue;
+        if (e.offsetParent === null && e.offsetWidth === 0) continue;   // 不可见
+        push(e);
+      }
+    }
+    return out;
+  }
+
+  /* ------------------------------ 构建看板 ------------------------------ */
+  function build() {
+    var root = el('div', 'ax-dash');
+    root.id = 'ax-dash-root';
+
+    /* --- ① 问候顶栏 --- */
+    var now = new Date();
+    var hh = now.getHours();
+    var hi = hh < 6 ? '夜深了' : hh < 11 ? '早上好' : hh < 13 ? '中午好' : hh < 18 ? '下午好' : '晚上好';
+    var name = CFG.user || '';
+    try { name = name || localStorage.getItem('ax_user') || localStorage.getItem('wb_user') || ''; } catch (e) {}
+    if (name && name.length > 8) name = '';
+    var wd = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][now.getDay()];
+    var hero = el('div', 'ax-hero');
+    hero.appendChild(el('div', '', '<div class="ax-hi">' + hi + (name ? '，' + esc(name) : '') + ' 👋</div>' +
+      '<div class="ax-sub">' + esc(CFG.greet || (CFG.project ? CFG.project + ' · 今日概览' : '今日概览')) +
+      ' · ' + now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日 ' + wd + '</div>'));
+    var hr = el('div', 'ax-hero-r');
+    (CFG.heroChips || []).forEach(function (c) {
+      hr.appendChild(el('span', 'ax-chip', esc(c.t) + (c.b != null ? ' <b>' + esc(c.b) + '</b>' : '')));
+    });
+    hr.appendChild(el('span', 'ax-chip ax-fold', '<span class="ax-arrow">▾</span> 收起看板'));
+    hero.appendChild(hr);
+    root.appendChild(hero);
+
+    var body = el('div', 'ax-dash-body');
+    root.appendChild(body);
+
+    /* --- ② KPI --- */
+    var kpis = CFG.kpis || [];
+    if (kpis.length) {
+      var kg = el('div', 'ax-kpis');
+      var shown = 0;
+      kpis.forEach(function (k) {
+        var r = resolve(k);
+        /* 宁可少一张卡，也不显示会误导人的 0 / 假数字 */
+        var zeroish = (r.n === 0 || r.n == null || r.n === '');
+        if (zeroish && k.hideIfEmpty !== false) return;
+        shown++;
+        var shownVal = (r.raw != null && r.raw !== '') ? esc(r.raw) : (r.real ? num(r.n) : '—');
+        var tail = (r.raw != null && r.raw !== '') ? '' : (k.unit ? '<em>' + esc(k.unit) + '</em>' : '');
+        var card = el('div', 'ax-kpi c-' + (k.color || 'blue'));
+        card.innerHTML =
+          '<span class="ax-ic" style="background:var(--ax-g-' + (k.color || 'blue') + ')">' + svg(k.icon || 'star') + '</span>' +
+          '<div class="ax-v">' + shownVal + tail + '</div>' +
+          '<div class="ax-l">' + esc(k.label) + '</div>' +
+          (k.trend ? '<div class="ax-t ' + (k.trendDir || 'flat') + '">' + esc(k.trend) + '</div>' : '');
+        kg.appendChild(card);
+      });
+      if (shown) {
+        body.appendChild(kg);
+      } else {
+        /* 全部无值时不留空洞：给一条克制的提示（登录/接入数据后自动出现） */
+        body.appendChild(el('div', 'ax-card ax-note',
+          '<div class="ax-empty">业务数据将在登录后自动汇总到这里</div>'));
+      }
+    }
+
+    /* --- ③ 图表 + 洞察 行 --- */
+    if (CFG.chart || CFG.insight) {
+      var both = !!(CFG.chart && CFG.insight);
+      var cols = el('div', 'ax-cols ' + (both ? 'c21' : 'c1'));
+      if (CFG.chart) {
+        var c1 = el('div', 'ax-card');
+        c1.appendChild(el('div', 'ax-h', '<span class="ax-bar"></span><h3>' + esc(CFG.chart.title || '趋势') + '</h3>' +
+          '<span class="ax-r">' + esc(CFG.chart.note || '近 12 期') + '</span>'));
+        c1.appendChild(el('div', '', areaChart(CFG.chart.points || [4, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16], CFG.chart.color || '#6C5CE7')));
+        if (CFG.chart.legend) {
+          c1.appendChild(el('div', 'ax-legend', CFG.chart.legend.map(function (l) {
+            return '<span><i style="background:' + l.c + '"></i>' + esc(l.n) + '</span>';
+          }).join('')));
+        }
+        cols.appendChild(c1);
+      }
+      if (CFG.insight) {
+        var c2 = el('div', 'ax-card');
+        c2.appendChild(el('div', 'ax-h', '<span class="ax-bar"></span><h3>' + esc(CFG.insight.title || '结构洞察') + '</h3>'));
+        if (CFG.insight.donut) {
+          c2.appendChild(el('div', '', donut(CFG.insight.donut)));
+        } else {
+          /* barsFrom：运行时实时计数（真实数据）；bars：静态数值 */
+          var items = CFG.insight.barsFrom
+            ? CFG.insight.barsFrom.map(function (b) {
+                var v = b.sel ? document.querySelectorAll(b.sel).length : (b.textOf && toNum((document.querySelector(b.textOf) || {}).textContent)) || 0;
+                return { n: b.n, v: v || 0, c: b.c };
+              }).filter(function (b) { return b.v > 0; })
+            : (CFG.insight.bars || []);
+          if (items.length) {
+            var maxv = Math.max.apply(null, items.map(function (b) { return b.v; })) || 1;
+            c2.appendChild(el('div', 'ax-bars', items.map(function (b) {
+              return '<div class="ax-bar-row"><div class="ax-bh"><span>' + esc(b.n) + '</span><b>' + esc(b.v) + '</b></div>' +
+                '<div class="ax-bar-track"><div class="ax-bar-fill" style="width:' + (b.v / maxv * 100).toFixed(1) +
+                '%;background:' + (b.c || 'var(--ax-g-indigo)') + '"></div></div></div>';
+            }).join('')));
+          } else {
+            c2.appendChild(el('div', 'ax-empty', '暂无可统计的记录'));
+          }
+        }
+        cols.appendChild(c2);
+      }
+      body.appendChild(cols);
+    }
+
+    /* --- ④ 常用功能宫格（复用既有元素与其点击处理） --- */
+    var tools = discoverTools();
+    if (tools.length) {
+      var tc = el('div', 'ax-card');
+      tc.appendChild(el('div', 'ax-h', '<span class="ax-bar"></span><h3>常用功能</h3>' +
+        '<span class="ax-r">点击直达 · 与原菜单同一入口</span>'));
+      var grid = el('div', 'ax-tools');
+      var pal = ['gb', 'gi', 'gg', 'go', 'gt', 'gr', 'gp'];
+      tools.forEach(function (t, i) {
+        var d = el('div', 'ax-tool');
+        d.innerHTML = '<div class="ax-ti ' + pal[i % pal.length] + '">' + svgInk('bolt') + '</div>' +
+          '<div class="ax-tn">' + esc(t.label) + '</div>';
+        d.title = '等同于点击「' + t.label + '」';
+        d.addEventListener('click', function () {
+          try {
+            t.node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            t.node.click();
+          } catch (e) {}
+        });
+        grid.appendChild(d);
+      });
+      tc.appendChild(grid);
+      body.appendChild(tc);
+    }
+
+    /* --- ⑤ 折叠 --- */
+    var fold = root.querySelector('.ax-fold');
+    if (fold) {
+      fold.addEventListener('click', function () {
+        var hidden = body.classList.toggle('hidden');
+        var ar = fold.querySelector('.ax-arrow');
+        if (ar) ar.textContent = hidden ? '▸' : '▾';
+        var t = fold.childNodes[fold.childNodes.length - 1];
+        if (t && t.nodeType === 3) t.textContent = hidden ? ' 展开看板' : ' 收起看板';
+      });
+    }
+    return root;
+  }
+
+  /* ------------------------------ 挂载 ------------------------------ */
+  function mount() {
+    try {
+      if (document.getElementById('ax-dash-root')) return;   // 幂等
+      var dash = build();
+      /* 选项卡式布局（如 AI 外呼：页面由多个互斥 .wrap 标签页组成）：
+         塞进任何一个 wrap 都会随标签切换而消失。CFG.after 指定锚点选择器时，
+         把看板插到锚点「之后、同一层级」，使其常驻在标签内容之上。 */
+      if (CFG.after) {
+        var anchor = document.querySelector(CFG.after);
+        if (anchor && anchor.parentNode) {
+          anchor.parentNode.insertBefore(dash, anchor.nextSibling);
+          dash.style.maxWidth = '1180px';
+          dash.style.margin = '16px auto 16px';
+          dash.style.padding = '0 24px';
+          if (CFG.afterPad === false) dash.style.padding = '0';
+          return;
+        }
+      }
+      var host = findHost();
+      if (!host) return;
+      host.insertBefore(dash, host.firstChild);
+      // 让看板随内容滚动，不遮挡既有吸顶元素
+      dash.style.marginBottom = '16px';
+    } catch (e) {
+      if (window.console) console.warn('[aurora-dash] 挂载失败（已忽略，不影响原页面）：', e);
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(mount, 60); });
+  else setTimeout(mount, 60);
+
+  // 页面是 SPA 时，视图切换后补挂一次
+  window.addEventListener('hashchange', function () { setTimeout(mount, 260); });
+  window.__axMount = mount;
+})();
+</script>
 </head>
 <body>
 
@@ -312,8 +1647,19 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
       <button class="admin-mini primary" onclick="exportAll()">📤 导出全量客户数据</button>
     </div>
     <div id="adminReset" style="display:none">
-      <p style="font-size:13px;color:var(--text-secondary);line-height:1.7">待处理的找回密码请求：系统已生成 6 位验证码并推送到此处，请告知对应同事后点“已处理”。</p>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.7">待处理的找回密码请求：系统已生成 6 位验证码。若已配好邮件服务，验证码会同时发到用户邮箱；未配好则在此处查看并转告同事。</p>
       <div id="resetList"></div>
+
+      <div style="margin-top:18px;border-top:1px dashed var(--border);padding-top:14px">
+        <p style="font-size:13px;font-weight:600;margin-bottom:4px">📧 邮件服务（EmailJS）· 找回密码验证码自动发送</p>
+        <p style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:10px">
+          配好后，同事点「忘记密码」验证码会<b>直接发到 TA 自己的邮箱</b>，你就不用再手动转告。<br>
+          未配置时自动保持现在的「管理员中转」模式，功能不受影响。
+        </p>
+        <div id="mailCfgStatus" class="login-status" style="text-align:left"></div>
+        <button class="admin-mini primary" onclick="adminTestMail()">✉️ 发送测试邮件（发到我的邮箱）</button>
+        <button class="admin-mini" onclick="adminFillMailCfg()">🔄 重新检查配置</button>
+      </div>
     </div>
   </div>
 </div>
@@ -324,6 +1670,7 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
     <div class="modal-title">编辑账号<button class="client-icon-btn" onclick="closeProfile()">✕</button></div>
     <div class="login-field"><label>邮箱（不可修改）</label><input id="pfEmail" type="email" readonly style="background:#f5f6f8"></div>
     <div class="login-field"><label>昵称</label><input id="pfNick" type="text" placeholder="显示名称" maxlength="20" autocomplete="off"></div>
+    <div class="login-field"><label>原密码（修改自己的密码时必填）</label><input id="pfOldPw" type="password" placeholder="管理员改他人密码可留空" autocomplete="current-password"></div>
     <div class="login-field"><label>新密码（留空则不修改）</label><input id="pfPw" type="password" placeholder="修改密码请填写" autocomplete="new-password"></div>
     <button class="login-btn" onclick="saveProfile()">保存</button>
     <div class="login-status" id="pfStatus"></div>
@@ -338,10 +1685,10 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang 
       <div class="login-field"><label>账号邮箱</label><input id="frEmail" type="email" placeholder="请输入注册邮箱"></div>
       <button class="login-btn" onclick="requestReset()">获取 6 位验证码</button>
       <div class="login-status" id="frStatus"></div>
-      <div class="login-hint">验证码会推送给管理员，请联系管理员索取后填写下一步。</div>
+      <div class="login-hint">验证码会发送到你填写的注册邮箱（10 分钟内有效）。<br>若一直没收到，请联系管理员索取。</div>
     </div>
     <div id="forgotStep2" style="display:none">
-      <div class="login-field"><label>6 位验证码（向管理员索取）</label><input id="frCode" type="text" inputmode="numeric" maxlength="6" placeholder="6 位数字"></div>
+      <div class="login-field"><label>6 位验证码（来自你的邮箱）</label><input id="frCode" type="text" inputmode="numeric" maxlength="6" placeholder="6 位数字"></div>
       <div class="login-field"><label>新密码（至少 6 位）</label><input id="frPw" type="password" placeholder="设置新密码" autocomplete="new-password"></div>
       <button class="login-btn" onclick="doReset()">重置并登录</button>
       <div class="login-status" id="frStatus2"></div>
@@ -565,6 +1912,21 @@ const KEY="wb_client_v1", META_KEY="wb_client_meta";
 const SB_BASE="https://ekecxzijszqemqykpmkc.supabase.co/rest/v1";
 const SB_KEY="sb_publishable_aLbA-luAVpq6JvUCN7v_JA_IOsxHg7X";
 const SEED_TS="20260828074515";
+
+/* ==================== 邮件服务（EmailJS）· 邮箱验证码找回密码 ====================
+   作用：用户点「忘记密码」→ 系统生成 6 位验证码 → 直接发到用户注册邮箱（10 分钟内有效）。
+   配置方式：填下面 MAIL_CFG_DEFAULT 三个值即可（EmailJS 的这三个 key 本就是设计为前端公开的）。
+   未配置 / 发送失败时：自动回退为原来的「管理员中转验证码」，不会把用户卡死。
+   后台「找回密码」页有自检入口：可查看配置状态、一键发测试邮件。 */
+const MAIL_CFG_DEFAULT={
+  publicKey:"",     // EmailJS → Account → Public Key
+  serviceId:"",     // EmailJS → Email Services → 服务 ID（形如 service_xxxxxxx）
+  templateId:""     // EmailJS → Email Templates → 模板 ID（形如 template_xxxxxxx）
+};
+const MAIL_CFG_KEY="emailjs";
+const MAIL_LOCAL_KEY="wb_mail_cfg";
+let MAIL_CFG=null;   // {publicKey, serviceId, templateId}
+
 let DATA=loadData();
 let FILTER="全部", NEED="", BID_TYPE="", LEVEL="", CUR_ID="";
 let OWNER_FILTER="";                 // 管理员人员筛选：""=全部人员，否则按负责人(owner)/assignments 过滤
@@ -1048,10 +2410,11 @@ async function loadOwnerAssignments(email){
 async function loadOwnerOptions(){
   const sel=document.getElementById('iOwnerFilter'); if(!sel)return;
   try{
-    const rows=await sbSelect('accounts','order=email.asc');
+    const res=await sbRpc('bh_admin_list',{p_token:bhToken()});
+    const rows=(res&&res.ok)?(res.accounts||[]):[];
     const cur=OWNER_FILTER;
     sel.innerHTML='<option value="">全部人员</option>'+
-      (rows||[]).map(a=>`<option value="${esc(a.email)}">${esc(a.nickname||a.email)}${a.role==='admin'?'（管理员）':''}</option>`).join('');
+      rows.map(a=>`<option value="${esc(a.email)}">${esc(a.nickname||a.email)}${a.role==='admin'?'（管理员）':''}</option>`).join('');
     if(cur) sel.value=cur;
   }catch(e){ /* 账号表不可用时仅保留“全部人员” */ }
 }
@@ -1263,6 +2626,71 @@ function sbSelect(t,q){return sbReq(t,{method:'GET',q});}
 function sbInsert(t,body){return sbReq(t,{method:'POST',json:true,prefer:'return=minimal',body});}
 function sbUpdate(t,q,body){return sbReq(t,{method:'PATCH',json:true,prefer:'return=minimal',q,body});}
 function sbDelete(t,q){return sbReq(t,{method:'DELETE',q});}
+
+/* ==================== 账号 RPC 通道（安全加固）====================
+   为什么：账号表若允许匿名直连，任何人看源码拿到 anon key 就能
+   拉走全部账号的密码哈希、甚至匿名伪造管理员。
+   自 2026-09-24 起，accounts / pwd_resets / login_codes / account_sessions
+   四张表已禁止匿名直连，账号的读写一律走数据库端函数 bh_*。
+   详见 deploy/sql/baohan_harden_01_rpc.sql 与 02_lockdown.sql。 */
+async function sbRpc(fn,args){
+  const r=await fetch(SB_BASE+'/rpc/'+fn,{method:'POST',headers:sbHdrs(true),body:JSON.stringify(args||{})});
+  if(!r.ok){let d='';try{d=await r.text();}catch(_){}throw new Error('HTTP '+r.status+(d?(' '+d.slice(0,200)):''));}
+  try{return await r.json();}catch(_){return null;}
+}
+/* 从 RPC 返回值里取错误文案 */
+function rpcErr(res,fallback){return (res&&res.error)||fallback||'操作失败';}
+/* 当前会话令牌 */
+function bhToken(){return (SESSION&&SESSION.token)||'';}
+/* 按邮箱取账号公开信息：本人的走 bh_session，他人的走 bh_admin_list */
+async function bhLoadAccount(email){
+  const e=String(email||'').toLowerCase();
+  if(SESSION&&SESSION.token&&SESSION.email&&e===String(SESSION.email).toLowerCase()){
+    const r=await sbRpc('bh_session',{p_token:SESSION.token});
+    return (r&&r.ok)?r.account:null;
+  }
+  const r=await sbRpc('bh_admin_list',{p_token:SESSION.token});
+  if(!r||!r.ok)return null;
+  return (r.accounts||[]).find(a=>String(a.email||'').toLowerCase()===e)||null;
+}
+
+/* ==================== 邮件服务（EmailJS）==================== */
+function mailCfgLocal(){try{return JSON.parse(localStorage.getItem(MAIL_LOCAL_KEY)||'null')||null;}catch(e){return null;}}
+function mailReady(c){return !!(c&&c.publicKey&&c.serviceId&&c.templateId);}
+/* 读取配置：① 代码内预置 MAIL_CFG_DEFAULT → ② 云端 app_settings（若可读）→ ③ 本机缓存 */
+async function loadMailCfg(force){
+  if(MAIL_CFG&&!force)return MAIL_CFG;
+  if(mailReady(MAIL_CFG_DEFAULT)){MAIL_CFG=MAIL_CFG_DEFAULT;return MAIL_CFG;}
+  try{
+    const rows=await sbSelect('app_settings','key=eq.'+MAIL_CFG_KEY+'&select=value&limit=1');
+    if(rows&&rows.length&&rows[0].value){
+      MAIL_CFG=JSON.parse(rows[0].value);
+      try{localStorage.setItem(MAIL_LOCAL_KEY,rows[0].value);}catch(e){}
+      return MAIL_CFG;
+    }
+  }catch(e){}
+  MAIL_CFG=mailCfgLocal()||MAIL_CFG_DEFAULT;
+  return MAIL_CFG;
+}
+/* 调用 EmailJS REST 发送验证码（纯 fetch，无需引入 SDK，保持单文件） */
+async function mailSendCode(cfg,to,code){
+  const r=await fetch('https://api.emailjs.com/api/v1.0/email/send',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      service_id:cfg.serviceId, template_id:cfg.templateId, user_id:cfg.publicKey,
+      template_params:{
+        to_email:to, email:to, user_email:to,
+        code:code, verify_code:code,
+        message:'【保函工作台】您的找回密码验证码是 '+code+'（10 分钟内有效）',
+        app_name:'保函工作台', subject:'【保函工作台】找回密码验证码：'+code
+      }
+    })
+  });
+  if(!r.ok){throw new Error('邮件服务返回 HTTP '+r.status+' '+(await r.text()).slice(0,140));}
+  return true;
+}
+
 async function sha256(s){const b=new TextEncoder().encode(s);const h=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('');}
 function visibleData(){
   let base=(SESSION&&SESSION.role==='admin')?DATA:DATA.filter(d=>ASSIGN.has(d.id));
@@ -1273,7 +2701,8 @@ function visibleData(){
 }
 function setLgStatus(m,err){const el=document.getElementById('loginStatus');if(el){el.textContent=m||'';el.style.color=err?'#ff4d4f':'#52c41a';}const pe=document.getElementById('phoneCodeStatus');if(pe){pe.textContent=m||'';pe.style.color=err?'#ff4d4f':'#52c41a';}}
 function friendlyErr(e){const m=((e&&e.message)||'').toString();
-  if(m.indexOf('404')>=0||m.indexOf('relation')>=0||m.indexOf('does not exist')>=0)return '云端账号表未初始化：请先在 Supabase 控制台 → SQL Editor 执行建表脚本 supabase_login.sql，再重试';
+  if(m.indexOf('PGRST202')>=0||m.indexOf('Could not find the function')>=0||m.indexOf('404')>=0||m.indexOf('relation')>=0||m.indexOf('does not exist')>=0)return '账号服务未初始化：请先在 Supabase 控制台 → SQL Editor 执行 deploy/sql/baohan_harden_01_rpc.sql，再重试';
+  if(m.indexOf('42501')>=0||m.indexOf('permission denied')>=0||m.indexOf('403')>=0)return '账号服务权限异常：请确认已执行 baohan_harden_01_rpc.sql（前端已改为走 RPC，不再直连账号表）';
   return m||'网络错误';}
 
 /* —— 登录页交互 —— */
@@ -1293,25 +2722,24 @@ async function loginEmail(){
   const pw=document.getElementById('lgPw').value;
   if(!email||!pw){setLgStatus('请输入邮箱和密码',true);return;}
   setLgStatus('校验中…');
-  try{const rows=await sbSelect('accounts','email=eq.'+encodeURIComponent(email));
-    if(!rows||!rows.length){setLgStatus('账号不存在',true);return;}
-    const a=rows[0];const h=await sha256(pw+a.salt);
-    if(h!==a.pw_hash){setLgStatus('密码错误',true);return;}
-    loginAs(a.email,a.role,a.export_enabled,a.nickname);
+  try{
+    const res=await sbRpc('bh_login',{p_email:email,p_pw:pw});
+    if(!res||!res.ok){setLgStatus(rpcErr(res,'登录失败'),true);return;}
+    const a=res.account||{};
+    loginAs(a.email||email,a.role,a.export_enabled,a.nickname,res.token);
   }catch(e){setLgStatus('登录失败：'+friendlyErr(e),true);}
 }
 let CODE_TIMER=null;
 async function genCode(){
   const email=(document.getElementById('lgCodeEmail').value||'').trim().toLowerCase();
   if(!email){setLgStatus('请先输入邮箱',true);return;}
-  try{const rows=await sbSelect('accounts','email=eq.'+encodeURIComponent(email));
-    if(!rows||!rows.length){setLgStatus('该邮箱未注册',true);return;}
+  try{const res=await sbRpc('bh_email_exists',{p_email:email});
+    if(res&&res.ok&&!res.exists){setLgStatus('该邮箱未注册',true);return;}
   }catch(e){setLgStatus(friendlyErr(e),true);return;}
-  const exp=new Date(Date.now()+5*60000).toISOString();
-  let code=null,ok=false,tries=0;
-  while(!ok&&tries<20){code=String(Math.floor(1000+Math.random()*9000));
-    try{await sbInsert('login_codes',{code,email,pc_device:DEVICE_ID,status:'pending',expires_at:exp});ok=true;}catch(e){tries++;}}
-  if(!ok){setLgStatus('生成失败，请重试',true);return;}
+  const code=String(Math.floor(1000+Math.random()*9000));
+  try{const res=await sbRpc('bh_login_code_create',{p_code:code,p_email:email,p_device:DEVICE_ID});
+    if(!res||!res.ok){setLgStatus(rpcErr(res,'生成失败，请重试'),true);return;}
+  }catch(e){setLgStatus('生成失败：'+friendlyErr(e),true);return;}
   document.getElementById('codeGenPane').style.display='none';
   document.getElementById('codeShowPane').style.display='block';
   document.getElementById('codeDisplay').textContent=code;
@@ -1322,20 +2750,25 @@ async function genCode(){
 }
 function cancelCode(){clearInterval(CODE_TIMER);document.getElementById('codeShowPane').style.display='none';document.getElementById('codeGenPane').style.display='block';document.getElementById('codeDisplay').textContent='----';}
 async function pollCode(email){
-  try{const rows=await sbSelect('login_codes','pc_device=eq.'+DEVICE_ID+'&status=eq.claimed');
-    if(rows&&rows.length){clearInterval(CODE_TIMER);const acc=(await sbSelect('accounts','email=eq.'+encodeURIComponent(rows[0].email)))[0];loginAs(acc.email,acc.role,acc.export_enabled,acc.nickname);return;}
+  try{
+    const res=await sbRpc('bh_login_code_poll',{p_device:DEVICE_ID});
+    if(res&&res.ok&&res.claimed){
+      clearInterval(CODE_TIMER);
+      const a=res.account||{};
+      loginAs(a.email||res.email,a.role,a.export_enabled,a.nickname,res.token);
+      return;
+    }
   }catch(e){}
   CODE_TIMER=setTimeout(()=>pollCode(email),2000);
 }
 async function claimCode(){
   const code=(document.getElementById('lgCode').value||'').trim();
   if(!/^\d{4}$/.test(code)){setLgStatus('请输入4位数字',true);return;}
-  try{const rows=await sbSelect('login_codes','code=eq.'+code+'&status=eq.pending');
-    if(!rows||!rows.length){setLgStatus('验证码无效或已过期',true);return;}
-    const r=rows[0];if(new Date(r.expires_at).getTime()<Date.now()){setLgStatus('验证码已过期',true);return;}
-    await sbUpdate('login_codes','code=eq.'+code,{status:'claimed',phone_session:DEVICE_ID});
-    const acc=(await sbSelect('accounts','email=eq.'+encodeURIComponent(r.email)))[0];
-    loginAs(acc.email,acc.role,acc.export_enabled,acc.nickname);
+  try{
+    const res=await sbRpc('bh_login_code_claim',{p_code:code,p_device:DEVICE_ID});
+    if(!res||!res.ok){setLgStatus(rpcErr(res,'验证码无效或已过期'),true);return;}
+    const a=res.account||{};
+    loginAs(a.email,a.role,a.export_enabled,a.nickname,res.token);
   }catch(e){setLgStatus('确认失败：'+friendlyErr(e),true);}
 }
 /* —— 注册（普通账号，需管理员分配客户后可见数据） —— */
@@ -1348,23 +2781,27 @@ async function registerAccount(){
   if(pw!==pw2){setLgStatus('两次密码不一致',true);return;}
   setLgStatus('注册中…');
   try{
-    const ex=await sbSelect('accounts','email=eq.'+encodeURIComponent(email));
-    if(ex&&ex.length){setLgStatus('该邮箱已注册，请直接登录',true);return;}
-    const salt=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,10);
-    const h=await sha256(pw+salt);
-    await sbInsert('accounts',{email,role:'user',nickname:'',pw_hash:h,salt,export_enabled:true,created_by:'self'});
-    loginAs(email,'user',true,'');
+    const res=await sbRpc('bh_register',{p_email:email,p_pw:pw,p_nickname:''});
+    if(!res||!res.ok){setLgStatus(rpcErr(res,'注册失败'),true);return;}
+    // 注册成功后直接用刚设的密码登录，拿到会话令牌
+    const lr=await sbRpc('bh_login',{p_email:email,p_pw:pw});
+    if(lr&&lr.ok){const a=lr.account||{};loginAs(a.email||email,a.role,a.export_enabled,a.nickname,lr.token);}
+    else setLgStatus('注册成功，请返回登录',true);
   }catch(e){setLgStatus('注册失败：'+friendlyErr(e),true);}
 }
-async function loginAs(email,role,exportEnabled,nickname){
-  SESSION={email,role,export_enabled:(exportEnabled!==false),nickname:(nickname||''),ts:Date.now()};
+async function loginAs(email,role,exportEnabled,nickname,token){
+  SESSION={email,role,export_enabled:(exportEnabled!==false),nickname:(nickname||''),token:(token||(SESSION&&SESSION.token)||''),ts:Date.now()};
   localStorage.setItem('wb_session',JSON.stringify(SESSION));
   try{await loadAssignments(email);}catch(e){}
   setLgStatus('');
   hideLogin();render();
   if(role==='admin'){document.getElementById('btnAdmin').style.display='inline-flex';}
 }
-function logout(){SESSION={};ASSIGN=new Set();localStorage.removeItem('wb_session');clearInterval(CODE_TIMER);location.reload();}
+function logout(){
+  const t=bhToken();
+  if(t){try{sbRpc('bh_logout',{p_token:t});}catch(e){}}   // 服务端吊销会话（失败不阻塞退出）
+  SESSION={};ASSIGN=new Set();localStorage.removeItem('wb_session');clearInterval(CODE_TIMER);location.reload();
+}
 async function loadAssignments(email){
   ASSIGN=new Set();
   if(SESSION.role==='admin')return;
@@ -1380,13 +2817,16 @@ function switchAdminTab(t){
     document.getElementById('at'+cap).classList.toggle('active',x===t);
     document.getElementById('admin'+cap).style.display=x===t?'block':'none';});
   if(t==='assign')adminLoadAssignTargets();
-  if(t==='reset')adminListResets();
+  if(t==='reset'){adminListResets();adminFillMailCfg();}
   if(t==='export')document.getElementById('exCount').textContent=DATA.length;
 }
 async function adminListAccounts(){
   const list=document.getElementById('accList');list.innerHTML='加载中…';
-  try{const rows=await sbSelect('accounts','order=email.asc');
-    if(!rows||!rows.length){list.innerHTML='<div class="empty">暂无账号</div>';return;}
+  try{
+    const res=await sbRpc('bh_admin_list',{p_token:bhToken()});
+    if(!res||!res.ok){list.innerHTML='<div class="empty">'+esc(rpcErr(res,'加载失败'))+'</div>';return;}
+    const rows=res.accounts||[];
+    if(!rows.length){list.innerHTML='<div class="empty">暂无账号</div>';return;}
     list.innerHTML=rows.map(a=>`<div class="admin-row">
       <span class="ar-email">${esc(a.nickname||a.email)}</span>
       <span class="ar-role ${a.role==='admin'?'admin':''}">${a.role==='admin'?'管理员':'普通'}</span>
@@ -1401,38 +2841,46 @@ async function adminCreate(){
   const role=document.getElementById('naRole').value;
   const pw=(document.getElementById('naPw').value||'').trim();
   if(!email||!pw){alert('请填写邮箱和初始密码');return;}
-  const salt=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,10);
-  const h=await sha256(pw+salt);
-  try{await sbInsert('accounts',{email,role,pw_hash:h,salt,created_by:SESSION.email});
+  try{
+    const res=await sbRpc('bh_admin_upsert',{p_token:bhToken(),p_email:email,p_pw:pw,p_role:role,p_nickname:''});
+    if(!res||!res.ok){alert('创建失败：'+rpcErr(res));return;}
     document.getElementById('naEmail').value='';document.getElementById('naPw').value='';
     adminListAccounts();alert('已创建：'+email);loadOwnerOptions();
-  }catch(e){alert('创建失败（可能邮箱已存在）：'+e.message);}
+  }catch(e){alert('创建失败：'+friendlyErr(e));}
 }
 function adminPwPrompt(email){const pw=prompt('为 '+email+' 设置新密码：');if(!pw)return;adminSetPw(email,pw);}
 async function adminSetPw(email,pw){
-  const salt=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,10);
-  const h=await sha256(pw+salt);
-  try{await sbUpdate('accounts','email=eq.'+encodeURIComponent(email),{pw_hash:h,salt});alert('密码已更新');}catch(e){alert('修改失败：'+e.message);}
+  try{
+    const res=await sbRpc('bh_admin_upsert',{p_token:bhToken(),p_email:email,p_pw:pw});
+    if(!res||!res.ok){alert('修改失败：'+rpcErr(res));return;}
+    alert('密码已更新（该账号需重新登录）');
+  }catch(e){alert('修改失败：'+friendlyErr(e));}
 }
 async function adminDelete(email){if(!confirm('删除账号 '+email+'？'))return;
-  try{await sbDelete('accounts','email=eq.'+encodeURIComponent(email));
+  try{
+    const res=await sbRpc('bh_account_delete',{p_token:bhToken(),p_email:email});
+    if(!res||!res.ok){alert('删除失败：'+rpcErr(res));return;}
     await sbDelete('assignments','email=eq.'+encodeURIComponent(email));
-    adminListAccounts();}catch(e){alert('删除失败：'+e.message);}
+    adminListAccounts();
+  }catch(e){alert('删除失败：'+friendlyErr(e));}
 }
 async function adminToggleExport(email){
   try{
-    const rows=await sbSelect('accounts','email=eq.'+encodeURIComponent(email));
-    const cur=rows&&rows[0]?(rows[0].export_enabled!==false):true;
+    const acc=await bhLoadAccount(email);
+    const cur=acc?(acc.export_enabled!==false):true;
     const next=!cur;
-    await sbUpdate('accounts','email=eq.'+encodeURIComponent(email),{export_enabled:next});
+    const res=await sbRpc('bh_admin_upsert',{p_token:bhToken(),p_email:email,p_export_enabled:next});
+    if(!res||!res.ok){alert('操作失败：'+rpcErr(res));return;}
     adminListAccounts();
     if(email===SESSION.email){SESSION.export_enabled=next;localStorage.setItem('wb_session',JSON.stringify(SESSION));}
-  }catch(e){alert('操作失败（若无此选项，请重新执行建表脚本 supabase_login.sql）：'+friendlyErr(e));}
+  }catch(e){alert('操作失败：'+friendlyErr(e));}
 }
 async function adminLoadAssignTargets(){
   const sel=document.getElementById('asEmail');
-  try{const rows=await sbSelect('accounts','role=eq.user&order=email.asc');
-    sel.innerHTML=(rows||[]).map(a=>`<option value="${esc(a.email)}">${esc(a.email)}</option>`).join('')||'<option value="">无普通账号</option>';
+  try{
+    const res=await sbRpc('bh_admin_list',{p_token:bhToken()});
+    const rows=((res&&res.ok)?(res.accounts||[]):[]).filter(a=>a.role!=='admin');
+    sel.innerHTML=rows.map(a=>`<option value="${esc(a.email)}">${esc(a.email)}</option>`).join('')||'<option value="">无普通账号</option>';
     adminShowAssignCount();
   }catch(e){sel.innerHTML='<option>加载失败</option>';}
 }
@@ -1473,9 +2921,10 @@ function openProfile(email){
   document.getElementById('pfEmail').value=email;
   document.getElementById('pfNick').value='';
   document.getElementById('pfPw').value='';
+  const op=document.getElementById('pfOldPw'); if(op)op.value='';
   setPfStatus('');
-  sbSelect('accounts','email=eq.'+encodeURIComponent(email)).then(rows=>{
-    if(rows&&rows[0]&&rows[0].nickname)document.getElementById('pfNick').value=rows[0].nickname;
+  bhLoadAccount(email).then(acc=>{
+    if(acc&&acc.nickname)document.getElementById('pfNick').value=acc.nickname;
   }).catch(()=>{});
   document.getElementById('profileModal').classList.add('show');
 }
@@ -1485,14 +2934,32 @@ async function saveProfile(){
   const email=document.getElementById('pfEmail').value;
   const nick=(document.getElementById('pfNick').value||'').trim();
   const pw=document.getElementById('pfPw').value;
+  const opw=(document.getElementById('pfOldPw')||{}).value||'';
   if(!email)return;
-  const upd={};
-  if(nick)upd.nickname=nick;
-  if(pw){const salt=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,10);const h=await sha256(pw+salt);upd.pw_hash=h;upd.salt=salt;}
+  const isSelf=(SESSION&&SESSION.email&&email.toLowerCase()===String(SESSION.email).toLowerCase());
   setPfStatus('保存中…');
   try{
-    await sbUpdate('accounts','email=eq.'+encodeURIComponent(email),upd);
-    if(email===SESSION.email){ if(nick)SESSION.nickname=nick; localStorage.setItem('wb_session',JSON.stringify(SESSION)); const em=document.getElementById('sbEmail'); if(em)em.textContent=SESSION.nickname||'我的工作台'; }
+    // 1) 昵称
+    if(nick){
+      const r1=isSelf
+        ? await sbRpc('bh_self_update',{p_token:bhToken(),p_nickname:nick})
+        : await sbRpc('bh_admin_upsert',{p_token:bhToken(),p_email:email,p_nickname:nick});
+      if(!r1||!r1.ok){setPfStatus('保存失败：'+rpcErr(r1),true);return;}
+    }
+    // 2) 密码（改自己的密码需验原密码；管理员改他人不需要）
+    if(pw){
+      if(isSelf&&!opw){setPfStatus('修改自己的密码请先填写原密码',true);return;}
+      const r2=await sbRpc('bh_change_pw',{p_token:bhToken(),p_email:email,p_old_pw:opw,p_new_pw:pw});
+      if(!r2||!r2.ok){setPfStatus('保存失败：'+rpcErr(r2),true);return;}
+      if(isSelf){
+        // 改密后服务端会吊销全部会话，需重新登录
+        setPfStatus('密码已更新，请重新登录');
+        alert('密码已更新，为保证安全请重新登录。');
+        setTimeout(()=>{SESSION={};ASSIGN=new Set();localStorage.removeItem('wb_session');location.reload();},800);
+        return;
+      }
+    }
+    if(isSelf&&nick){SESSION.nickname=nick;localStorage.setItem('wb_session',JSON.stringify(SESSION));const em=document.getElementById('sbEmail');if(em)em.textContent=SESSION.nickname||'我的工作台';}
     setPfStatus('已保存');
     setTimeout(closeProfile,600);
     if(document.getElementById('adminModal').classList.contains('show'))adminListAccounts();
@@ -1503,21 +2970,47 @@ async function saveProfile(){
 function openForgot(){document.getElementById('forgotStep1').style.display='block';document.getElementById('forgotStep2').style.display='none';setFrStatus('');document.getElementById('forgotModal').classList.add('show');}
 function closeForgot(){document.getElementById('forgotModal').classList.remove('show');}
 function setFrStatus(m,err){['frStatus','frStatus2'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=m||'';el.style.color=err?'#ff4d4f':'#52c41a';}});}
+/* —— 服务端发信（126 邮箱 SMTP，走 Supabase Edge Function）——
+   验证码由服务端生成入库并发信，前端全程拿不到验证码，更安全。
+   Edge Function 未部署时 fetch 会 404，自动回退到下面的旧链路。 */
+async function efSendResetCode(email){
+  const r=await fetch('https://ekecxzijszqemqykpmkc.supabase.co/functions/v1/send-reset-code',
+    {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
 async function requestReset(){
   const email=(document.getElementById('frEmail').value||'').trim().toLowerCase();
   if(!email){setFrStatus('请输入邮箱',true);return;}
   setFrStatus('生成验证码中…');
+  /* 首选：服务端发信（126 SMTP） */
   try{
-    const rows=await sbSelect('accounts','email=eq.'+encodeURIComponent(email));
-    if(!rows||!rows.length){setFrStatus('该邮箱未注册',true);return;}
-    const exp=new Date(Date.now()+10*60000).toISOString();
-    let code=null,ok=false,tries=0;
-    while(!ok&&tries<30){code=String(Math.floor(100000+Math.random()*900000));
-      try{await sbInsert('pwd_resets',{email,code,status:'pending',expires_at:exp});ok=true;}catch(e){tries++;}}
-    if(!ok){setFrStatus('生成失败，请重试',true);return;}
-    setFrStatus('验证码已推送给管理员，请联系管理员索取（10 分钟内有效）');
+    const ef=await efSendResetCode(email);
+    if(ef&&ef.ok===false){setFrStatus(rpcErr(ef,'请求失败'),true);return;}
+    if(ef&&ef.ok){
+      document.getElementById('forgotStep1').style.display='none';
+      document.getElementById('forgotStep2').style.display='block';
+      setFrStatus((ef.sent?'✅ ':'⚠️ ')+ef.message,!ef.sent);
+      return;
+    }
+  }catch(e){ /* 未部署或网络异常 → 走旧链路 */ }
+  try{
+    const code=String(Math.floor(100000+Math.random()*900000));
+    const rr=await sbRpc('bh_request_reset',{p_email:email,p_code:code});
+    if(!rr||!rr.ok){setFrStatus(rpcErr(rr,'生成失败，请重试'),true);return;}
+
+    /* 优先把验证码发到用户自己的注册邮箱；失败则回退为「管理员中转」 */
+    let mailed=false,mailErr='';
+    try{
+      const cfg=await loadMailCfg();
+      if(mailReady(cfg)){setFrStatus('正在发送验证码到 '+email+' …');await mailSendCode(cfg,email,code);mailed=true;}
+      else mailErr='邮件服务尚未配置（请管理员在后台检查 EmailJS 配置）';
+    }catch(e){mailErr=(e&&e.message)?e.message:String(e);}
+
     document.getElementById('forgotStep1').style.display='none';
     document.getElementById('forgotStep2').style.display='block';
+    if(mailed)setFrStatus('✅ 验证码已发送到 '+email+'，10 分钟内有效。没收到？看一眼垃圾邮件，或联系管理员索取。');
+    else setFrStatus('⚠️ 验证码已生成，但邮件未发出（'+mailErr+'）。请联系管理员索取后填写下一步（10 分钟内有效）。',true);
   }catch(e){setFrStatus('请求失败：'+friendlyErr(e),true);}
 }
 async function doReset(){
@@ -1528,42 +3021,80 @@ async function doReset(){
   if(pw.length<6){setFrStatus('新密码至少 6 位',true);return;}
   setFrStatus('重置中…');
   try{
-    const rows=await sbSelect('pwd_resets','email=eq.'+encodeURIComponent(email)+'&code=eq.'+code+'&status=eq.pending');
-    if(!rows||!rows.length){setFrStatus('验证码错误或已失效',true);return;}
-    if(new Date(rows[0].expires_at).getTime()<Date.now()){setFrStatus('验证码已过期',true);return;}
-    const salt=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,10);
-    const h=await sha256(pw+salt);
-    await sbUpdate('accounts','email=eq.'+encodeURIComponent(email),{pw_hash:h,salt});
-    await sbUpdate('pwd_resets','email=eq.'+encodeURIComponent(email)+'&code=eq.'+code,{status:'done'});
-    const acc=(await sbSelect('accounts','email=eq.'+encodeURIComponent(email)))[0];
-    closeForgot();
-    loginAs(acc.email,acc.role,acc.export_enabled,acc.nickname);
+    const res=await sbRpc('bh_confirm_reset',{p_email:email,p_code:code,p_new_pw:pw});
+    if(!res||!res.ok){setFrStatus(rpcErr(res,'验证码错误或已失效'),true);return;}
+    // 重置后服务端已吊销该账号所有会话，用新密码重新登录
+    const lr=await sbRpc('bh_login',{p_email:email,p_pw:pw});
+    if(lr&&lr.ok){const a=lr.account||{};closeForgot();loginAs(a.email||email,a.role,a.export_enabled,a.nickname,lr.token);}
+    else{closeForgot();setLgStatus('密码已重置，请用新密码登录');}
   }catch(e){setFrStatus('重置失败：'+friendlyErr(e),true);}
 }
 /* —— 管理员：查看/处理找回密码请求 —— */
 async function adminListResets(){
   const list=document.getElementById('resetList');list.innerHTML='加载中…';
   try{
-    const rows=await sbSelect('pwd_resets','status=eq.pending&order=created_at.desc');
-    if(!rows||!rows.length){list.innerHTML='<div class="empty">暂无找回密码请求</div>';return;}
+    const res=await sbRpc('bh_admin_list_resets',{p_token:bhToken()});
+    if(!res||!res.ok){list.innerHTML='<div class="empty">'+esc(rpcErr(res,'加载失败'))+'</div>';return;}
+    const rows=res.items||[];
+    if(!rows.length){list.innerHTML='<div class="empty">暂无找回密码请求</div>';return;}
     list.innerHTML=rows.map(r=>`<div class="admin-row">
       <span class="ar-email">${esc(r.email)}</span>
       <span class="ar-role">验证码 <b>${esc(r.code)}</b></span>
       <button class="admin-mini" onclick="adminResolveReset('${esc(r.email)}','${esc(r.code)}')">已处理</button>
     </div>`).join('');
-  }catch(e){list.innerHTML='<div class="empty">加载失败（若无此表请重跑 supabase_login.sql）</div>';}
+  }catch(e){list.innerHTML='<div class="empty">加载失败：'+esc(friendlyErr(e))+'</div>';}
 }
 async function adminResolveReset(email,code){
-  try{await sbUpdate('pwd_resets','email=eq.'+encodeURIComponent(email)+'&code=eq.'+code,{status:'done'});adminListResets();}catch(e){alert('操作失败：'+e.message);}
+  try{
+    const res=await sbRpc('bh_admin_mark_reset',{p_token:bhToken(),p_email:email,p_code:code});
+    if(!res||!res.ok){alert('操作失败：'+rpcErr(res));return;}
+    adminListResets();
+  }catch(e){alert('操作失败：'+friendlyErr(e));}
+}
+
+/* —— 管理员：邮件服务（EmailJS）自检 —— */
+function mailCfgStatus(msg,err){const el=document.getElementById('mailCfgStatus');if(el){el.textContent=msg||'';el.style.color=err?'#ff4d4f':'#52c41a';}}
+async function adminFillMailCfg(){
+  try{
+    const cfg=await loadMailCfg(true);
+    if(mailReady(cfg))mailCfgStatus('✅ 邮件服务已配置，同事找回密码时会自动收到邮件。需要改配置找梦一城。');
+    else mailCfgStatus('⚠️ 尚未配置邮件服务：当前找回密码仍走「管理员中转」（在此列表看验证码并转告同事）。');
+  }catch(e){mailCfgStatus('读取配置失败：'+e.message,true);}
+}
+async function adminTestMail(){
+  const to=(SESSION&&SESSION.email)||'';
+  if(!to){mailCfgStatus('请先登录管理员账号再测试',true);return;}
+  const cfg=(await loadMailCfg(true))||{};
+  if(!mailReady(cfg)){mailCfgStatus('邮件服务未配置，无法测试。请把 EmailJS 的三个 key 交给梦一城填入代码。',true);return;}
+  mailCfgStatus('正在发送测试邮件到 '+to+' …');
+  try{await mailSendCode(cfg,to,'123456');mailCfgStatus('✅ 测试邮件已发出，请查收 '+to+'（验证码示例 123456）。没收到先看垃圾箱。');}
+  catch(e){mailCfgStatus('❌ 发送失败：'+e.message,true);}
 }
 
 /* ===================== 启动 ===================== */
 function boot(){
   const s=localStorage.getItem('wb_session');
   if(s){try{SESSION=JSON.parse(s);}catch(e){}}
-  if(SESSION&&SESSION.email){
-    loadAssignments(SESSION.email).then(()=>{hideLogin();render();}).catch(()=>{showLogin();});
-  }else{showLogin();}
+  if(SESSION&&SESSION.email&&SESSION.token){
+    /* 令牌要服务端复核：过期 / 被管理员吊销 / 改密后都会失效 */
+    sbRpc('bh_session',{p_token:SESSION.token}).then(res=>{
+      if(!res||!res.ok){
+        SESSION={};ASSIGN=new Set();localStorage.removeItem('wb_session');showLogin();return;
+      }
+      const a=res.account||{};
+      SESSION.email=a.email||SESSION.email;
+      SESSION.role=a.role||SESSION.role;
+      SESSION.nickname=a.nickname||'';
+      SESSION.export_enabled=(a.export_enabled!==false);
+      localStorage.setItem('wb_session',JSON.stringify(SESSION));
+      return loadAssignments(SESSION.email).then(()=>{hideLogin();render();}).catch(()=>{showLogin();});
+    }).catch(()=>showLogin());
+  }else if(SESSION&&SESSION.email){
+    /* 旧版缓存的登录态没有令牌，无法校验 → 清掉并要求重新登录一次 */
+    SESSION={};ASSIGN=new Set();localStorage.removeItem('wb_session');showLogin();
+  }else{
+    showLogin();
+  }
   initSync();
 }
 boot();
