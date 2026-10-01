@@ -1909,7 +1909,7 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 </script>
 <script>
 const KEY="wb_client_v1", META_KEY="wb_client_meta";
-const SB_BASE="https://ekecxzijszqemqykpmkc.supabase.co/rest/v1";
+const SB_BASE="https://incredible-fenglisu-4f930c.netlify.app/rest/v1";
 const SB_KEY="sb_publishable_aLbA-luAVpq6JvUCN7v_JA_IOsxHg7X";
 const SEED_TS="20260828074515";
 
@@ -2974,7 +2974,7 @@ function setFrStatus(m,err){['frStatus','frStatus2'].forEach(id=>{const el=docum
    验证码由服务端生成入库并发信，前端全程拿不到验证码，更安全。
    Edge Function 未部署时 fetch 会 404，自动回退到下面的旧链路。 */
 async function efSendResetCode(email){
-  const r=await fetch('https://ekecxzijszqemqykpmkc.supabase.co/functions/v1/send-reset-code',
+  const r=await fetch('https://incredible-fenglisu-4f930c.netlify.app/functions/v1/send-reset-code',
     {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
   if(!r.ok) throw new Error('HTTP '+r.status);
   return r.json();
